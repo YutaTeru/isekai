@@ -10,7 +10,6 @@ import Prologue from './components/Prologue';
 // --- DATA DEFINITIONS ---
 
 const SEARCH_AREAS: SearchArea[] = [
-<<<<<<< HEAD
   {
     id: 'park',
     label: '公園エリア',
@@ -46,43 +45,6 @@ const SEARCH_AREAS: SearchArea[] = [
     color: 'bg-[#E1BEE7] text-[#7B1FA2] border-[#9C27B0]',
     description: '人工物に擬態する生物が生息。家具や家電製品の裏側など。',
     bgImage: '/bg/house.png'
-=======
-  { 
-    id: 'park', 
-    label: '公園エリア', 
-    type: CreatureType.Park, 
-    icon: Trees, 
-    color: 'bg-[#C8E6C9] text-[#2E7D32] border-[#4CAF50]',
-    description: '多くの生物が観測される基本エリア。遊具周辺は要チェック。',
-    bgImage: 'https://images.unsplash.com/photo-1558036117-15db521e5233?q=80&w=1000&auto=format&fit=crop'
-  },
-  { 
-    id: 'garden', 
-    label: '庭・路地裏', 
-    type: CreatureType.Garden, 
-    icon: Footprints, 
-    color: 'bg-[#FFECB3] text-[#F57F17] border-[#FFC107]',
-    description: '物陰に潜む小型生物が多い。隙間や影を調査せよ。',
-    bgImage: 'https://images.unsplash.com/photo-1621262377322-959c8d5c9bd5?q=80&w=1000&auto=format&fit=crop'
-  },
-  { 
-    id: 'water', 
-    label: '水辺・川', 
-    type: CreatureType.Water, 
-    icon: Waves, 
-    color: 'bg-[#E1F5FE] text-[#0277BD] border-[#29B6F6]',
-    description: '水棲生物の生息域。水面の波紋や湿った場所を探れ。',
-    bgImage: 'https://images.unsplash.com/photo-1543857770-7245f1c41025?q=80&w=1000&auto=format&fit=crop'
-  },
-  { 
-    id: 'house', 
-    label: '屋内・家', 
-    type: CreatureType.House, 
-    icon: Home, 
-    color: 'bg-[#E1BEE7] text-[#7B1FA2] border-[#9C27B0]',
-    description: '人工物に擬態する生物が生息。家具や家電製品の裏側など。',
-    bgImage: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?q=80&w=1000&auto=format&fit=crop'
->>>>>>> cf1542257deab439c0dd24b2b209abec6862133a
   },
 ];
 
@@ -145,7 +107,6 @@ function App() {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState('すべて');
   const [favorites, setFavorites] = useState<string[]>([]);
-<<<<<<< HEAD
 
   const [currentTime, setCurrentTime] = useState<TimeOfDay>(getCurrentTimeOfDay());
 
@@ -153,15 +114,6 @@ function App() {
   const [activeArea, setActiveArea] = useState<SearchArea | null>(null);
   const [activeSubAreaId, setActiveSubAreaId] = useState<string | null>(null);
 
-=======
-  
-  const [currentTime, setCurrentTime] = useState<TimeOfDay>(getCurrentTimeOfDay());
-
-  const [discoveredIds, setDiscoveredIds] = useState<string[]>([]); 
-  const [activeArea, setActiveArea] = useState<SearchArea | null>(null);
-  const [activeSubAreaId, setActiveSubAreaId] = useState<string | null>(null); 
-  
->>>>>>> cf1542257deab439c0dd24b2b209abec6862133a
   const [isSearching, setIsSearching] = useState(false);
   const [foundCreature, setFoundCreature] = useState<Creature | null>(null);
 
@@ -171,11 +123,7 @@ function App() {
     const timer = setInterval(() => {
       setCurrentTime(getCurrentTimeOfDay());
     }, 60000);
-<<<<<<< HEAD
 
-=======
-    
->>>>>>> cf1542257deab439c0dd24b2b209abec6862133a
     const handleScroll = () => {
       setScrolled(window.scrollY > 20);
     };
@@ -190,29 +138,17 @@ function App() {
 
   const filteredCreatures = useMemo(() => {
     return CREATURES.filter(c => {
-<<<<<<< HEAD
       const matchesSearch = c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         c.latinName.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesCategory = activeCategory === 'すべて' || c.type === activeCategory;
       const matchesTab = currentTab === 'journal' ? favorites.includes(c.id) : true;
 
-=======
-      const matchesSearch = c.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                            c.latinName.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesCategory = activeCategory === 'すべて' || c.type === activeCategory;
-      const matchesTab = currentTab === 'journal' ? favorites.includes(c.id) : true;
-      
->>>>>>> cf1542257deab439c0dd24b2b209abec6862133a
       return matchesSearch && matchesCategory && matchesTab;
     });
   }, [searchQuery, activeCategory, currentTab, favorites]);
 
   const toggleFavorite = (id: string) => {
-<<<<<<< HEAD
     setFavorites(prev =>
-=======
-    setFavorites(prev => 
->>>>>>> cf1542257deab439c0dd24b2b209abec6862133a
       prev.includes(id) ? prev.filter(fId => fId !== id) : [...prev, id]
     );
   };
@@ -232,7 +168,6 @@ function App() {
 
   const handleSpotClick = (spot: SubAreaSpot) => {
     setActiveSubAreaId(spot.id);
-<<<<<<< HEAD
     setIsSearching(true);
 
     const areaCreatures = CREATURES.filter(c => c.type === activeArea?.type);
@@ -243,18 +178,6 @@ function App() {
 
     if (candidates.length === 0) {
       candidates = areaCreatures;
-=======
-    setIsSearching(true); 
-    
-    const areaCreatures = CREATURES.filter(c => c.type === activeArea?.type);
-    
-    let candidates = areaCreatures.filter(c => 
-      c.activeTime.includes(currentTime) || c.activeTime.includes(TimeOfDay.Any)
-    );
-    
-    if (candidates.length === 0) {
-       candidates = areaCreatures;
->>>>>>> cf1542257deab439c0dd24b2b209abec6862133a
     }
     if (candidates.length === 0) {
       candidates = CREATURES;
@@ -267,11 +190,7 @@ function App() {
       if (!discoveredIds.includes(randomCreature.id)) {
         setDiscoveredIds(prev => [...prev, randomCreature.id]);
       }
-<<<<<<< HEAD
     }, 2500);
-=======
-    }, 2500); 
->>>>>>> cf1542257deab439c0dd24b2b209abec6862133a
   };
 
   const closeSearch = () => {
@@ -292,7 +211,6 @@ function App() {
     const spots = AREA_SPOTS[activeArea.id] || [];
 
     return (
-<<<<<<< HEAD
       <div className="fixed inset-0 z-40 bg-[#f9f9f9] font-maru">
         {/* Header - Fixed Overlay */}
         <div className="fixed top-0 left-0 right-0 z-50 p-4 pt-safe pointer-events-none">
@@ -302,36 +220,10 @@ function App() {
                 <Search className="w-6 h-6" />
               </button>
               <div className="text-kids-text">
-=======
-      <div className="fixed inset-0 z-40 bg-gray-200 flex flex-col font-maru">
-        <div className="absolute inset-0 z-0 overflow-hidden">
-          <img 
-            src={activeArea.bgImage} 
-            alt={activeArea.label} 
-            className="w-full h-full object-cover blur-[2px]"
-          />
-          <div className={`absolute inset-0 transition-colors duration-1000 ${timeConfig.bgOverlay}`}></div>
-          <div 
-            className="absolute inset-0 pointer-events-none opacity-20" 
-            style={{
-                backgroundImage: `radial-gradient(#ffffff 2px, transparent 2px)`,
-                backgroundSize: '30px 30px'
-            }}
-          ></div>
-        </div>
-
-        <div className="p-4 pt-safe flex justify-between items-center relative z-10 bg-white/60 backdrop-blur-md m-4 rounded-3xl shadow-lg border-2 border-white">
-           <div className="flex items-center gap-3">
-             <button onClick={quitExploration} className="p-2 bg-white rounded-full hover:bg-gray-100 text-kids-text transition-colors shadow-sm border border-gray-200">
-               <Search className="w-6 h-6" />
-             </button>
-             <div className="text-kids-text">
->>>>>>> cf1542257deab439c0dd24b2b209abec6862133a
                 <h2 className="font-bold text-xl leading-tight">
                   {activeArea.label}
                 </h2>
                 <div className="flex items-center gap-1 text-sm font-bold opacity-80 bg-white/50 px-2 rounded-full inline-flex">
-<<<<<<< HEAD
                   <timeConfig.icon className={`w-4 h-4 ${timeConfig.color}`} />
                   <span>現在時刻：{timeConfig.label}</span>
                 </div>
@@ -431,87 +323,11 @@ function App() {
           </button>
         </div>
       </div >
-=======
-                   <timeConfig.icon className={`w-4 h-4 ${timeConfig.color}`} />
-                   <span>現在時刻：{timeConfig.label}</span>
-                </div>
-             </div>
-           </div>
-           <div className="bg-pop-green text-white border-2 border-white text-sm px-4 py-1.5 rounded-full font-black shadow-pop animate-pulse">
-              スキャン中...
-           </div>
-        </div>
-
-        <div className="flex-1 relative overflow-hidden z-10">
-           {spots.map((spot) => {
-             const isActive = spot.activeTimes.includes(currentTime) || spot.activeTimes.includes(TimeOfDay.Any);
-             
-             return (
-               <button
-                 key={spot.id}
-                 onClick={() => isActive && handleSpotClick(spot)}
-                 disabled={!isActive}
-                 style={{ left: `${spot.x}%`, top: `${spot.y}%` }}
-                 className={`
-                   absolute -translate-x-1/2 -translate-y-1/2 flex flex-col items-center justify-center transition-all duration-500 group
-                   ${isActive 
-                      ? 'scale-100 opacity-100 cursor-pointer z-10 hover:scale-110' 
-                      : 'scale-75 opacity-40 grayscale cursor-not-allowed z-0'
-                   }
-                 `}
-               >
-                 <div className={`
-                    relative w-20 h-20 rounded-full flex items-center justify-center shadow-[0_4px_0_0_rgba(0,0,0,0.1)] mb-2 border-[4px] transition-transform duration-300
-                    ${isActive 
-                      ? 'bg-white border-pop-blue text-pop-blue active:translate-y-1 active:shadow-none' 
-                      : 'bg-gray-300 border-gray-400 text-gray-500'
-                    }
-                 `}>
-                    <spot.icon className="w-10 h-10" strokeWidth={2.5} />
-                    
-                    {isActive && (
-                      <>
-                        <span className="absolute -inset-1 rounded-full border-4 border-pop-yellow opacity-75 animate-ping"></span>
-                        <div className="absolute -top-2 -right-2 bg-pop-pink w-6 h-6 rounded-full flex items-center justify-center animate-bounce">
-                           <Star className="w-3 h-3 text-white fill-current" />
-                        </div>
-                      </>
-                    )}
-                 </div>
-
-                 <span className={`
-                    text-sm font-black px-4 py-1.5 rounded-full whitespace-nowrap shadow-pop transition-colors border-2
-                    ${isActive 
-                        ? 'bg-white text-kids-text border-pop-blue' 
-                        : 'bg-gray-200 text-gray-400 border-gray-300'
-                    }
-                 `}>
-                   {spot.label}
-                 </span>
-               </button>
-             );
-           })}
-        </div>
-        
-        <div className="p-6 relative z-10 flex justify-center pb-10 pointer-events-none">
-            <button 
-                onClick={quitExploration} 
-                className="pointer-events-auto bg-white text-kids-text font-black py-4 px-10 rounded-full shadow-pop hover:scale-105 hover:bg-gray-50 transition-all border-4 border-kids-text"
-            >
-               調査を中断
-            </button>
-        </div>
-      </div>
->>>>>>> cf1542257deab439c0dd24b2b209abec6862133a
     );
   };
 
   // --- RENDER ---
-<<<<<<< HEAD
 
-=======
-  
->>>>>>> cf1542257deab439c0dd24b2b209abec6862133a
   if (showPrologue) {
     return <Prologue onComplete={(name) => {
       setUserName(name);
@@ -521,7 +337,6 @@ function App() {
 
   return (
     <div className="min-h-screen font-maru pb-32 overflow-x-hidden relative transition-colors duration-1000 bg-transparent">
-<<<<<<< HEAD
 
       {/* Header */}
       <header
@@ -558,55 +373,12 @@ function App() {
               <UserCircle2 className="w-5 h-5 text-pop-blue" />
               <span className="text-sm font-bold text-kids-text">{userName} 調査員</span>
             </div>
-=======
-      
-      {/* Header */}
-      <header 
-        className={`sticky top-0 z-30 transition-all duration-300 ${
-          scrolled 
-            ? 'glass-panel py-2 rounded-b-3xl shadow-sm mx-2' 
-            : 'bg-transparent py-4'
-        }`}
-      >
-        <div className="container mx-auto px-4 max-w-3xl flex items-center justify-between">
-          <div className="flex items-center gap-3">
-             <div className="w-12 h-12 rounded-2xl bg-pop-yellow border-4 border-white flex items-center justify-center text-white shadow-pop">
-               <BookOpen className="w-7 h-7" strokeWidth={3} />
-             </div>
-             <div>
-               <h1 className="font-black text-xl text-kids-text tracking-wide drop-shadow-sm">
-                 {APP_NAME}
-               </h1>
-               <div className="flex items-center gap-3">
-                 <div className="flex items-center gap-1 text-xs font-bold text-gray-500">
-                    <span className="bg-white px-2 py-0.5 rounded-full shadow-sm">観測進捗</span>
-                 </div>
-                 <div className="w-24 h-4 bg-white rounded-full overflow-hidden border-2 border-gray-100">
-                    <div 
-                      className="h-full bg-pop-green transition-all duration-1000 rounded-full"
-                      style={{ width: `${Math.max(5, discoveryRate)}%` }}
-                    ></div>
-                 </div>
-                 <span className="text-sm font-black text-pop-green">{discoveryRate}%</span>
-               </div>
-             </div>
-          </div>
-          <div className="hidden sm:flex flex-col items-end">
-             <div className="flex items-center gap-2 bg-white px-3 py-1.5 rounded-full shadow-sm border-2 border-pop-blue">
-                <UserCircle2 className="w-5 h-5 text-pop-blue" />
-                <span className="text-sm font-bold text-kids-text">{userName} 調査員</span>
-             </div>
->>>>>>> cf1542257deab439c0dd24b2b209abec6862133a
           </div>
         </div>
       </header>
 
       <main className="container mx-auto px-4 max-w-3xl mt-6 relative z-10">
-<<<<<<< HEAD
 
-=======
-        
->>>>>>> cf1542257deab439c0dd24b2b209abec6862133a
         {/* === EXPLORE TAB === */}
         {currentTab === 'explore' && (
           <div className="animate-in fade-in slide-in-from-right-4 duration-300">
@@ -630,7 +402,6 @@ function App() {
                     ${area.color.split(' ')[2]}
                   `}
                 >
-<<<<<<< HEAD
                   <div className="absolute inset-0 z-0 opacity-10 group-hover:opacity-20 transition-opacity duration-500">
                     <img src={area.bgImage} className="w-full h-full object-cover" alt="" />
                   </div>
@@ -675,52 +446,6 @@ function App() {
                   </div>
                 </div>
               </button>
-=======
-                   <div className="absolute inset-0 z-0 opacity-10 group-hover:opacity-20 transition-opacity duration-500">
-                      <img src={area.bgImage} className="w-full h-full object-cover" alt="" />
-                   </div>
-                   
-                   <div className="relative z-10 flex items-center gap-4">
-                     <div className={`w-16 h-16 rounded-2xl flex-shrink-0 flex items-center justify-center bg-white shadow-sm border-2 ${area.color.split(' ')[2]} ${area.color.split(' ')[1]}`}>
-                        <area.icon className="w-8 h-8" />
-                     </div>
-                     <div>
-                        <h3 className="text-lg font-black mb-1 text-kids-text">{area.label}</h3>
-                        <p className="text-xs font-bold opacity-70 text-gray-600 line-clamp-2">{area.description}</p>
-                     </div>
-                     <div className="absolute right-4 top-1/2 -translate-y-1/2 bg-white rounded-full p-2 opacity-0 group-hover:opacity-100 transition-all scale-0 group-hover:scale-100 shadow-sm text-pop-blue">
-                        <ScanLine className="w-5 h-5" />
-                     </div>
-                   </div>
-                </button>
-              ))}
-              
-              <button
-                  onClick={() => {
-                     startExploration({
-                       id: 'mystery',
-                       label: '？？？',
-                       type: CreatureType.Mystery,
-                       icon: Star,
-                       color: 'bg-slate-800 text-white border-slate-600',
-                       description: '詳細不明。高レベルの観測技術が必要。',
-                       bgImage: 'https://images.unsplash.com/photo-1516339901601-2e1b62dc0c45?q=80&w=1000&auto=format&fit=crop'
-                     })
-                  }}
-                  className="relative overflow-hidden group p-4 rounded-3xl border-4 border-pop-purple bg-[#240046] text-white shadow-pop hover:shadow-pop-hover hover:translate-y-1 transition-all duration-200 text-left col-span-1 sm:col-span-2"
-                >
-                   <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-50 animate-pulse"></div>
-                   <div className="relative z-10 flex items-center gap-4">
-                     <div className="w-16 h-16 rounded-2xl flex items-center justify-center bg-pop-purple shadow-sm border-2 border-white text-white">
-                        <Sparkles className="w-8 h-8 text-yellow-300" />
-                     </div>
-                     <div>
-                        <h3 className="text-lg font-black mb-1">未確認エリア</h3>
-                        <p className="text-xs font-bold opacity-80 text-purple-200">強力な生体反応あり。警戒せよ。</p>
-                     </div>
-                   </div>
-                </button>
->>>>>>> cf1542257deab439c0dd24b2b209abec6862133a
             </div>
           </div>
         )}
@@ -778,7 +503,6 @@ function App() {
         {/* === FAVORITES TAB (Journal) === */}
         {currentTab === 'journal' && (
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-<<<<<<< HEAD
             <div className="bg-white rounded-3xl p-6 shadow-card border-4 border-pop-pink mb-6 relative overflow-hidden min-h-[60vh] bg-stripes">
 
               <div className="relative z-10 flex items-center gap-4 mb-8 pb-4 border-b-2 border-dashed border-pop-pink/30">
@@ -822,60 +546,11 @@ function App() {
                 <div className="flex flex-col items-center justify-center py-20 text-center">
                   <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-4">
                     <Heart className="w-10 h-10 text-gray-300" />
-=======
-             <div className="bg-white rounded-3xl p-6 shadow-card border-4 border-pop-pink mb-6 relative overflow-hidden min-h-[60vh] bg-stripes">
-                
-                <div className="relative z-10 flex items-center gap-4 mb-8 pb-4 border-b-2 border-dashed border-pop-pink/30">
-                  <div className="p-3 bg-pop-pink text-white rounded-full shadow-sm border-4 border-white">
-                     <Heart className="w-8 h-8 fill-current" />
-                  </div>
-                  <div>
-                    <h2 className="text-2xl font-black text-pop-pink mb-1 drop-shadow-sm">観測記録</h2>
-                    <p className="text-gray-400 text-sm font-bold">保存された生物データ</p>
-                  </div>
-                </div>
-             
-             {filteredCreatures.length > 0 ? (
-               <div className="space-y-4">
-                 {filteredCreatures.map(creature => (
-                   <div 
-                    key={creature.id} 
-                    onClick={() => handleCreatureClick(creature)}
-                    className="flex items-center bg-white rounded-2xl p-3 cursor-pointer hover:scale-[1.02] transition-transform group shadow-sm border-2 border-gray-100 hover:border-pop-blue"
-                   >
-                     <div className="w-16 h-16 rounded-xl overflow-hidden border-2 border-gray-100 mr-4 shrink-0 bg-gray-50">
-                        <img 
-                            src={creature.imageUrl} 
-                            alt={creature.name} 
-                            className="w-full h-full object-cover" 
-                        />
-                     </div>
-                     <div className="flex-1 min-w-0">
-                        <h4 className="font-black text-kids-text text-lg mb-1 truncate">{creature.name}</h4>
-                        <div className="flex gap-1">
-                            <span className="text-xs font-bold text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
-                                {creature.type}
-                            </span>
-                        </div>
-                     </div>
-                     <Heart className="w-6 h-6 text-pop-pink fill-current mr-2" />
-                   </div>
-                 ))}
-               </div>
-             ) : (
-                <div className="flex flex-col items-center justify-center py-20 text-center">
-                  <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-                     <Heart className="w-10 h-10 text-gray-300" />
->>>>>>> cf1542257deab439c0dd24b2b209abec6862133a
                   </div>
                   <p className="font-black text-gray-400 mb-2">データが存在しません</p>
                   <p className="text-sm text-gray-400 font-bold">お気に入り登録した生物がここに表示されます。</p>
                 </div>
-<<<<<<< HEAD
               )}
-=======
-             )}
->>>>>>> cf1542257deab439c0dd24b2b209abec6862133a
             </div>
           </div>
         )}
@@ -887,7 +562,6 @@ function App() {
       {/* === SEARCHING/FOUND OVERLAY (Radar & Reward) === */}
       {(isSearching || foundCreature) && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex flex-col items-center justify-center p-6 animate-in fade-in duration-300 font-maru">
-<<<<<<< HEAD
 
           {!foundCreature ? (
             <div className="flex flex-col items-center text-center w-full">
@@ -970,102 +644,13 @@ function App() {
               </div>
             </div>
           )}
-=======
-           
-           {!foundCreature ? (
-             <div className="flex flex-col items-center text-center w-full">
-                <div className="relative w-72 h-72 flex items-center justify-center mb-8">
-                   {/* Radar Circles */}
-                   <div className="absolute inset-0 border-4 border-pop-green/30 rounded-full animate-ping delay-75"></div>
-                   <div className="absolute inset-0 border-4 border-pop-green/50 rounded-full animate-ping delay-500"></div>
-                   <div className="absolute inset-8 border-4 border-dashed border-pop-green/40 rounded-full animate-spin-slow"></div>
-                   
-                   <div className="relative bg-black rounded-full p-1 border-4 border-pop-green shadow-[0_0_30px_rgba(6,214,160,0.5)]">
-                       <div className="w-48 h-48 bg-gray-900 rounded-full flex items-center justify-center overflow-hidden relative">
-                            {/* Scanning Line */}
-                            <div className="absolute w-full h-1/2 bg-gradient-to-b from-transparent to-pop-green/50 top-0 left-0 origin-bottom animate-spin"></div>
-                            <Radar className="w-24 h-24 text-pop-green relative z-10" />
-                       </div>
-                   </div>
-                </div>
-                
-                <h2 className="text-3xl font-black text-white mb-2 animate-pulse tracking-widest">
-                  スキャン中...
-                </h2>
-                <p className="text-pop-green font-bold text-lg">
-                   生体反応を感知。捕捉しています。
-                </p>
-             </div>
-           ) : (
-             <div className="relative max-w-sm w-full animate-in zoom-in-50 duration-500">
-                {/* Confetti / Sparkles */}
-                <div className="absolute -top-20 -left-20 text-pop-yellow animate-bounce delay-100"><Star className="w-10 h-10 fill-current" /></div>
-                <div className="absolute -top-10 -right-10 text-pop-pink animate-bounce delay-200"><Heart className="w-8 h-8 fill-current" /></div>
-                <div className="absolute bottom-10 -right-10 text-pop-blue animate-bounce delay-300"><Star className="w-12 h-12 fill-current" /></div>
-
-                <div className="bg-white p-2 rounded-3xl shadow-2xl rotate-1 border-4 border-white">
-                   <div className="bg-stripes p-6 rounded-[20px] flex flex-col items-center text-center border-2 border-gray-100">
-                       
-                       <div className="mb-4 relative">
-                           <span className="absolute -top-6 left-1/2 -translate-x-1/2 bg-pop-pink text-white px-6 py-2 rounded-full font-black text-xl shadow-pop border-2 border-white whitespace-nowrap z-20 animate-bounce">
-                               生物発見！
-                           </span>
-                           <div className="w-48 h-48 bg-white rounded-2xl border-4 border-pop-yellow shadow-sm overflow-hidden relative rotate-[-2deg]">
-                                <img 
-                                    src={foundCreature.imageUrl} 
-                                    className="w-full h-full object-cover"
-                                    alt={foundCreature.name}
-                                />
-                                <div className="absolute inset-0 bg-gradient-to-tr from-white/40 to-transparent pointer-events-none"></div>
-                           </div>
-                       </div>
-                       
-                       <div className="mb-6 w-full">
-                          <h3 className="text-2xl font-black text-kids-text mb-2">{foundCreature.name}</h3>
-                          <div className="flex justify-center gap-1 mb-2">
-                             {[...Array(foundCreature.dangerLevel)].map((_, i) => (
-                               <Star key={i} className="w-5 h-5 fill-pop-yellow text-pop-yellow" />
-                             ))}
-                          </div>
-                          <p className="text-sm font-bold text-gray-400 bg-gray-100 rounded-full inline-block px-3 py-1">
-                             レア度
-                          </p>
-                       </div>
-                       
-                       <div className="flex gap-3 w-full">
-                          <button 
-                            onClick={() => {
-                              closeSearch();
-                              setSelectedCreature(foundCreature);
-                            }}
-                            className="flex-1 bg-pop-blue text-white py-3 rounded-xl font-black shadow-pop hover:translate-y-1 hover:shadow-none transition-all border-2 border-pop-blue"
-                          >
-                             詳細を確認
-                          </button>
-                          <button 
-                            onClick={closeSearch}
-                            className="flex-1 bg-white text-gray-500 border-2 border-gray-200 py-3 rounded-xl font-black hover:bg-gray-50 transition-colors"
-                          >
-                             閉じる
-                          </button>
-                       </div>
-                   </div>
-                </div>
-             </div>
-           )}
->>>>>>> cf1542257deab439c0dd24b2b209abec6862133a
         </div>
       )}
 
       {!activeArea && <BottomNav currentTab={currentTab} onTabChange={setCurrentTab} />}
 
-<<<<<<< HEAD
       <CreatureDetailModal
         creature={selectedCreature}
-=======
-      <CreatureDetailModal 
-        creature={selectedCreature} 
->>>>>>> cf1542257deab439c0dd24b2b209abec6862133a
         onClose={() => setSelectedCreature(null)}
         isFavorite={selectedCreature ? favorites.includes(selectedCreature.id) : false}
         onToggleFavorite={toggleFavorite}
