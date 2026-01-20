@@ -1,11 +1,13 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Search, Heart, Leaf, Star, Cloud, Waves, Trees, Footprints, Sun, Moon, Sunrise, Sunset, MapPin, Home, BookOpen, UserCircle2, Sparkles, Radar, ScanLine } from 'lucide-react';
-import { CREATURES, APP_NAME } from './constants';
-import { Creature, CreatureType, SearchArea, TimeOfDay, SubAreaSpot } from './types';
+import { Search, Heart, Leaf, Star, Cloud, Waves, Trees, Footprints, Sun, Moon, Sunrise, Sunset, MapPin, Home, BookOpen, UserCircle2, Sparkles, Radar, ScanLine, Camera, X, Box } from 'lucide-react';
+import { CREATURES, APP_NAME, ITEMS } from './constants';
+import { Creature, CreatureType, SearchArea, TimeOfDay, SubAreaSpot, Item, SearchPhase } from './types';
 import CreatureCard from './components/CreatureCard';
 import CreatureDetailModal from './components/CreatureDetailModal';
 import BottomNav from './components/BottomNav';
 import Prologue from './components/Prologue';
+import GameMap from './components/GameMap';
+import DPad, { Direction } from './components/DPad';
 
 // --- DATA DEFINITIONS ---
 
@@ -108,18 +110,86 @@ function App() {
   const [activeCategory, setActiveCategory] = useState('すべて');
   const [favorites, setFavorites] = useState<string[]>([]);
 
+  // BIG 3 FEATURES STATE
+  const [buddy, setBuddy] = useState<Creature | null>(null);
+  const [showNews, setShowNews] = useState(false);
+  const [newsMessage, setNewsMessage] = useState<{ title: string, content: string } | null>(null);
+  const [lastLogin, setLastLogin] = useState<number>(() => {
+    const stored = localStorage.getItem('lastLoginTime');
+    return stored ? parseInt(stored) : Date.now();
+  });
+
   const [currentTime, setCurrentTime] = useState<TimeOfDay>(getCurrentTimeOfDay());
 
   const [discoveredIds, setDiscoveredIds] = useState<string[]>([]);
   const [activeArea, setActiveArea] = useState<SearchArea | null>(null);
   const [activeSubAreaId, setActiveSubAreaId] = useState<string | null>(null);
 
-  const [isSearching, setIsSearching] = useState(false);
+  const [searchPhase, setSearchPhase] = useState<SearchPhase>('idle');
+  const [activeDirection, setActiveDirection] = useState<Direction>(null);
+  const [nearbySpotId, setNearbySpotId] = useState<string | null>(null);
   const [foundCreature, setFoundCreature] = useState<Creature | null>(null);
+  const [foundItem, setFoundItem] = useState<Item | null>(null);
+  const [inventory, setInventory] = useState<Item[]>([]);
+  const [showInventory, setShowInventory] = useState(false);
 
   const [scrolled, setScrolled] = useState(false);
 
+  // --- LOGIN BONUS & NEWS LOGIC ---
   useEffect(() => {
+    // 1. Check Login Bonus (1 hour cooldown)
+    const now = Date.now();
+    const diffHours = (now - lastLogin) / (1000 * 60 * 60);
+
+    if (diffHours >= 1) {
+      // Drop logic
+      const chance = buddy ? 0.8 : 0.3; // High chance if buddy exists
+      if (Math.random() < chance) {
+        const randomItem = ITEMS[Math.floor(Math.random() * ITEMS.length)];
+        setInventory(prev => [...prev, randomItem]);
+        // Show Dialog (Using News State for simplicity or alert)
+        setTimeout(() => {
+          alert(buddy
+            ? `相棒の ${buddy.name} が ${randomItem.name} を拾ってきた！`
+            : `おや？ ${randomItem.name} が落ちている...`
+          );
+        }, 1000);
+      }
+      localStorage.setItem('lastLoginTime', now.toString());
+      setLastLogin(now);
+    }
+
+    // 2. Generate Daily News
+    const generateNews = () => {
+      const types: ('forecast' | 'trivia' | 'advice')[] = ['forecast', 'trivia', 'advice'];
+      const type = types[Math.floor(Math.random() * types.length)];
+
+      // Define titles inside the function or typed properly
+      let title = '観測ログ';
+      let content = '';
+
+      if (type === 'forecast') {
+        title = 'バイオ予報';
+        content = `本日は「${currentTime}」の観測が推奨されます。`;
+      } else if (type === 'trivia' && buddy) {
+        title = '相棒の呟き';
+        content = buddy.trivia[Math.floor(Math.random() * buddy.trivia.length)];
+      } else if (type === 'trivia') {
+        // Random discovered creature
+        const targetId = discoveredIds.length > 0 ? discoveredIds[Math.floor(Math.random() * discoveredIds.length)] : CREATURES[0].id;
+        const target = CREATURES.find(c => c.id === targetId);
+        title = '豆知識';
+        content = target ? target.trivia[Math.floor(Math.random() * target.trivia.length)] : '観察を続けることで新たな発見があるだろう。';
+      } else {
+        title = '博士の助言';
+        content = 'アイテムは相棒に与えることで、より深い絆が生まれるぞ。';
+      }
+      setNewsMessage({ title, content });
+      setShowNews(true);
+    };
+
+    generateNews();
+
     const timer = setInterval(() => {
       setCurrentTime(getCurrentTimeOfDay());
     }, 60000);
@@ -132,7 +202,7 @@ function App() {
       window.removeEventListener('scroll', handleScroll);
       clearInterval(timer);
     };
-  }, []);
+  }, []); // Run on mount (and logically dep check but omitting for "On Mount" logic)
 
   const timeConfig = getTimeConfig(currentTime);
 
@@ -160,170 +230,212 @@ function App() {
 
   const discoveryRate = Math.round((discoveredIds.length / CREATURES.length) * 100);
 
+  // --- BUDDY & INVENTORY LOGIC ---
+
+  const handleSetBuddy = (creature: Creature) => {
+    // If not already buddy, set as buddy and init syncRate if undefined (though defined in constant)
+    const newBuddy = { ...creature, role: 'buddy', syncRate: creature.syncRate || 0 };
+    setBuddy(newBuddy as Creature);
+    // Also update in master list if we were tracking individual instances, but here state is simple
+    alert(`${creature.name} を相棒に設定しました！`);
+  };
+
+  const updateSyncRate = (amount: number) => {
+    if (!buddy) return;
+    setBuddy(prev => {
+      if (!prev) return null;
+      const newRate = Math.min(100, (prev.syncRate || 0) + amount);
+      // Evolution check placeholder
+      if (prev.syncRate < 100 && newRate >= 100) {
+        setTimeout(() => alert(`⚡ ${prev.name} との絆が MAX になった！ ⚡`), 500);
+      }
+      return { ...prev, syncRate: newRate };
+    });
+  };
+
+  const handleBuddyInteraction = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!buddy) return;
+    const hearts = ['❤️', '💖', '🎵', '✨'];
+    const reaction = hearts[Math.floor(Math.random() * hearts.length)];
+    // Visual feedback handled by alert for now, can be improved
+    // Increase sync rate by small amount with cooldown (omitted cooldown for simplicity)
+    updateSyncRate(1);
+    // alert(`${buddy.name}は嬉しそうだ！ ${reaction}`); // Optional: too many alerts is annoying
+  };
+
+  const handleUseItem = (item: Item) => {
+    if (!buddy) {
+      alert("相棒がいません。まずは相棒を決めよう！");
+      return;
+    }
+
+    // Consume item
+    const index = inventory.findIndex(i => i.id === item.id);
+    if (index > -1) {
+      const newInv = [...inventory];
+      newInv.splice(index, 1);
+      setInventory(newInv);
+
+      // Apply Effect
+      updateSyncRate(item.effectValue);
+      alert(`${buddy.name} に ${item.name} をあげた！\nシンクロ率が ${item.effectValue} 上がった！`);
+    }
+  };
+
   const startExploration = (area: SearchArea) => {
     setActiveArea(area);
     setActiveSubAreaId(null);
     setFoundCreature(null);
+    setSearchPhase('walking');
+    setActiveDirection(null);
+    setNearbySpotId(null);
   };
 
   const handleSpotClick = (spot: SubAreaSpot) => {
     setActiveSubAreaId(spot.id);
-    setIsSearching(true);
+    setSearchPhase('scanning');
 
+    // Transition to Aiming after 2 seconds
+    setTimeout(() => {
+      setSearchPhase('aiming');
+    }, 2000);
+  };
+
+  const handleShutterClick = () => {
     const areaCreatures = CREATURES.filter(c => c.type === activeArea?.type);
-
     let candidates = areaCreatures.filter(c =>
       c.activeTime.includes(currentTime) || c.activeTime.includes(TimeOfDay.Any)
     );
 
-    if (candidates.length === 0) {
-      candidates = areaCreatures;
-    }
-    if (candidates.length === 0) {
-      candidates = CREATURES;
-    }
+    if (candidates.length === 0) candidates = areaCreatures;
+    if (candidates.length === 0) candidates = CREATURES;
 
     const randomCreature = candidates[Math.floor(Math.random() * candidates.length)];
 
-    setTimeout(() => {
+    // 33% Chance to find creature
+    const isSuccess = Math.random() < 0.33;
+
+    if (isSuccess) {
+      // Success: Creature Found
       setFoundCreature(randomCreature);
+      setFoundItem(null);
       if (!discoveredIds.includes(randomCreature.id)) {
         setDiscoveredIds(prev => [...prev, randomCreature.id]);
       }
-    }, 2500);
+    } else {
+      // Failure: Item Found
+      const randomItem = ITEMS[Math.floor(Math.random() * ITEMS.length)];
+      setFoundItem(randomItem);
+      setFoundCreature(null);
+      setInventory(prev => [...prev, randomItem]);
+    }
+
+    setSearchPhase('result');
   };
 
   const closeSearch = () => {
-    setIsSearching(false);
+    setSearchPhase('idle');
     setActiveSubAreaId(null);
     setFoundCreature(null);
+    setFoundItem(null);
   };
 
   const quitExploration = () => {
-    setIsSearching(false);
+    setSearchPhase('idle');
     setActiveArea(null);
     setActiveSubAreaId(null);
     setFoundCreature(null);
+    setFoundItem(null);
   }
+
+  const handleActionButtonClick = () => {
+    if (activeArea && nearbySpotId) {
+      const spots = AREA_SPOTS[activeArea.id] || [];
+      const spot = spots.find(s => s.id === nearbySpotId);
+      if (spot) {
+        handleSpotClick(spot);
+      }
+    }
+  };
 
   const renderMapOverlay = () => {
     if (!activeArea) return null;
     const spots = AREA_SPOTS[activeArea.id] || [];
 
     return (
-      <div className="fixed inset-0 z-40 bg-[#f9f9f9] font-maru">
-        {/* Header - Fixed Overlay */}
-        <div className="fixed top-0 left-0 right-0 z-50 p-4 pt-safe pointer-events-none">
-          <div className="flex justify-between items-center bg-white/80 backdrop-blur-md rounded-3xl shadow-lg border-2 border-white pointer-events-auto p-2">
-            <div className="flex items-center gap-3 pl-2">
-              <button onClick={quitExploration} className="p-2 bg-white rounded-full hover:bg-gray-100 text-kids-text transition-colors shadow-sm border border-gray-200">
-                <Search className="w-6 h-6" />
-              </button>
-              <div className="text-kids-text">
-                <h2 className="font-bold text-xl leading-tight">
-                  {activeArea.label}
-                </h2>
-                <div className="flex items-center gap-1 text-sm font-bold opacity-80 bg-white/50 px-2 rounded-full inline-flex">
-                  <timeConfig.icon className={`w-4 h-4 ${timeConfig.color}`} />
-                  <span>現在時刻：{timeConfig.label}</span>
+      <div className="fixed inset-0 z-40 bg-black font-dot select-none touch-none overflow-hidden">
+
+        {/* Game Area */}
+        <GameMap
+          currentArea={activeArea}
+          spots={spots} // Pass all spots directly
+          activeDirection={activeDirection}
+          onSpotProximity={setNearbySpotId}
+        />
+
+        {/* UI Overlay */}
+        <div className="absolute inset-0 pointer-events-none flex flex-col justify-between p-4 pb-8 pt-safe">
+
+          {/* Top Bar - Retro Message Style */}
+          <div className="pointer-events-auto flex items-start justify-between">
+            <div className="bg-black/80 text-white border-2 border-white rounded p-4 font-dot text-lg leading-relaxed shadow-lg max-w-[70%]">
+              <p>{activeArea.label} に 到着した！</p>
+              <p className="text-sm text-gray-300 mt-1">
+                <timeConfig.icon className="inline w-3 h-3 mr-1" />
+                {timeConfig.label} の 時間 だ。
+              </p>
+            </div>
+
+            <button onClick={quitExploration} className="bg-gray-200 border-b-4 border-gray-400 p-2 rounded active:border-b-0 active:translate-y-1 text-black font-black text-xs hover:bg-white transition-all">
+              中止
+            </button>
+          </div>
+
+          {/* Bottom Controls */}
+          <div className="relative h-64 pointer-events-auto flex items-end justify-between px-2 sm:px-10 pb-4">
+
+            {/* D-Pad Area */}
+            <div className="relative w-48 h-48 flex items-center justify-center">
+              <DPad onDirectionChange={setActiveDirection} />
+            </div>
+
+            {/* Status Message (Center Bottom) */}
+            {nearbySpotId && (
+              <div className="absolute left-1/2 -translate-x-1/2 bottom-32 animate-bounce">
+                <div className="bg-black/90 text-white border-2 border-white px-4 py-2 rounded font-dot text-center">
+                  <span className="text-yellow-400">!</span> なにか あるぞ <span className="text-yellow-400">!</span>
                 </div>
+                <div className="w-0 h-0 border-l-[8px] border-r-[8px] border-t-[8px] border-l-transparent border-r-transparent border-t-white mx-auto"></div>
+              </div>
+            )}
+
+            {/* Action Button Area (Famicom Style A Button) */}
+            <div className="relative w-32 h-32 flex items-center justify-center mb-8">
+              <div className={`
+                         relative group
+                        ${nearbySpotId ? 'cursor-pointer' : 'opacity-50 cursor-not-allowed grayscale'}
+                     `}>
+                {/* Button Label */}
+                <span className="absolute -bottom-8 right-0 text-white font-black text-xl italic drop-shadow-md">A</span>
+
+                <button
+                  onClick={handleActionButtonClick}
+                  disabled={!nearbySpotId}
+                  className={`
+                                w-20 h-20 rounded-full bg-[#cc0000] border-b-8 border-[#8b0000] shadow-xl active:border-b-0 active:translate-y-2 transition-all flex items-center justify-center relative
+                                ${nearbySpotId ? 'animate-pulse' : ''}
+                            `}
+                >
+                  <span className="text-white/20 font-black text-sm">PUSH</span>
+                </button>
               </div>
             </div>
-            <div className="bg-pop-green text-white border-2 border-white text-sm px-4 py-1.5 rounded-full font-black shadow-pop animate-pulse mr-1">
-              スキャン中...
-            </div>
           </div>
-        </div>
-
-        {/* Scrollable Map Content */}
-        <div className="absolute inset-0 overflow-auto flex justify-center items-center">
-          <div className="relative shrink-0 shadow-2xl">
-            <img
-              src={activeArea.bgImage}
-              alt={activeArea.label}
-              className="block max-w-none h-[100vh] w-auto object-contain"
-              style={{ minHeight: '600px' }}
-            />
-
-            {/* Spots Overlay */}
-            <div className="absolute inset-0">
-              {spots.map((spot) => {
-                const isActive = spot.activeTimes.includes(currentTime) || spot.activeTimes.includes(TimeOfDay.Any);
-                return (
-                  <button
-                    key={spot.id}
-                    onClick={() => isActive && handleSpotClick(spot)}
-                    disabled={!isActive}
-                    style={{ left: `${spot.x}%`, top: `${spot.y}%` }}
-                    className={`
-                       absolute -translate-x-1/2 flex flex-col items-center transition-all duration-300 group
-                       ${isActive
-                        ? 'cursor-pointer z-10 hover:-translate-y-2'
-                        : 'opacity-40 grayscale cursor-not-allowed z-0'
-                      }
-                     `}
-                  >
-                    {/* Pin Shadow */}
-                    <div className={`
-                        absolute bottom-0 left-1/2 -translate-x-1/2 w-6 h-2 rounded-full blur-sm transition-all
-                        ${isActive ? 'bg-black/30' : 'bg-black/10'}
-                      `}></div>
-
-                    {/* Pin Body */}
-                    <div className="relative flex flex-col items-center">
-                      {/* Pin Head (Circle) */}
-                      <div className={`
-                            relative w-12 h-12 rounded-full flex items-center justify-center border-[3px] shadow-lg transition-transform duration-300
-                            ${isActive
-                          ? 'bg-pop-pink border-white text-white'
-                          : 'bg-gray-400 border-gray-300 text-gray-200'
-                        }
-                         `}>
-                        <spot.icon className="w-6 h-6" strokeWidth={2.5} />
-
-                        {isActive && (
-                          <span className="absolute -inset-1 rounded-full border-2 border-pop-yellow opacity-75 animate-ping"></span>
-                        )}
-                      </div>
-
-                      {/* Pin Point (Triangle) */}
-                      <div className={`
-                            w-0 h-0 border-l-[8px] border-r-[8px] border-t-[12px] -mt-1
-                            ${isActive
-                          ? 'border-l-transparent border-r-transparent border-t-pop-pink'
-                          : 'border-l-transparent border-r-transparent border-t-gray-400'
-                        }
-                         `}></div>
-                    </div>
-
-                    {/* Label */}
-                    <span className={`
-                         mt-1 text-xs font-black px-3 py-1 rounded-full whitespace-nowrap shadow-md transition-colors border-2
-                         ${isActive
-                        ? 'bg-white text-kids-text border-pop-pink'
-                        : 'bg-gray-200 text-gray-400 border-gray-300'
-                      }
-                    `}>
-                      {spot.label}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-
-
-        <div className="p-6 relative z-10 flex justify-center pb-10 pointer-events-none">
-          <button
-            onClick={quitExploration}
-            className="pointer-events-auto bg-white text-kids-text font-black py-4 px-10 rounded-full shadow-pop hover:scale-105 hover:bg-gray-50 transition-all border-4 border-kids-text"
-          >
-            調査を中断
-          </button>
         </div>
       </div >
     );
+
   };
 
   // --- RENDER ---
@@ -389,6 +501,86 @@ function App() {
         {/* === EXPLORE TAB === */}
         {currentTab === 'explore' && (
           <div className="animate-in fade-in slide-in-from-right-4 duration-300">
+
+            {/* NEWS SECTION (Digital Style) */}
+            {showNews && newsMessage && (
+              <div className="mb-6 bg-slate-800 rounded-xl p-1 border-l-4 border-pop-green shadow-lg">
+                <div className="bg-slate-900/50 p-3 rounded-lg flex items-start gap-3">
+                  <div className="mt-1 animate-pulse">
+                    <Radar className="w-5 h-5 text-pop-green" />
+                  </div>
+                  <div>
+                    <h4 className="text-xs font-mono text-pop-green mb-1 flex items-center gap-2">
+                      {newsMessage.title} <span className="text-[10px] opacity-50">{new Date().toLocaleDateString()}</span>
+                    </h4>
+                    <p className="text-sm font-bold text-white leading-relaxed font-dot">
+                      {newsMessage.content}
+                    </p>
+                  </div>
+                  <button onClick={() => setShowNews(false)} className="text-slate-500 hover:text-white">
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* BUDDY DISPLAY (If exists) */}
+            {buddy && (
+              <div
+                className="mb-6 relative group cursor-pointer"
+                onClick={handleBuddyInteraction}
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-pop-pink/20 to-pop-blue/20 rounded-3xl blur-xl animate-pulse"></div>
+                <div className="relative bg-white/80 backdrop-blur border-2 border-white rounded-3xl p-4 flex items-center gap-4 shadow-sm hover:scale-[1.02] transition-transform">
+                  <div className="relative">
+                    <div className="w-16 h-16 rounded-2xl overflow-hidden border-2 border-white shadow-md bg-white">
+                      <img src={buddy.imageUrl} className="w-full h-full object-cover" alt={buddy.name} />
+                    </div>
+                    <div className="absolute -bottom-2 -right-2 bg-pop-yellow text-white p-1 rounded-full border-2 border-white shadow-sm">
+                      <Heart className="w-4 h-4 fill-current" />
+                    </div>
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex justify-between items-center mb-1">
+                      <h3 className="font-black text-kids-text">{buddy.name}</h3>
+                      <span className="text-xs font-bold text-pop-pink bg-pop-pink/10 px-2 py-0.5 rounded-full">相棒</span>
+                    </div>
+                    <p className="text-xs font-bold text-gray-500 mb-2">{buddy.perk}</p>
+                    {/* Sync Bar */}
+                    <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-gradient-to-r from-pop-pink to-pop-purple transition-all duration-500"
+                        style={{ width: `${buddy.syncRate || 0}%` }}
+                      ></div>
+                    </div>
+                  </div>
+
+                  {/* Bag Button (Inside Buddy Card) */}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setShowInventory(true);
+                    }}
+                    className="ml-2 p-3 bg-white border-2 border-dashed border-pop-blue rounded-xl text-pop-blue hover:bg-pop-blue hover:text-white transition-all shadow-sm"
+                    title="アイテムを使う"
+                  >
+                    <Box className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* If no buddy, show suggestion or just empty space? Maybe a bag button anyway? */}
+            {!buddy && inventory.length > 0 && (
+              <button
+                onClick={() => setShowInventory(true)}
+                className="mb-6 w-full py-3 bg-white border-2 border-dashed border-gray-300 text-gray-500 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-gray-50"
+              >
+                <Box className="w-5 h-5" />
+                所持アイテムを確認する ({inventory.length})
+              </button>
+            )}
+
             <div className="text-center mb-6 py-6 relative bg-white/50 rounded-3xl border-2 border-white shadow-inner">
               <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-pop-yellow text-white px-4 py-1 rounded-full font-black text-sm shadow-sm border-2 border-white whitespace-nowrap">
                 現在の時刻：<timeConfig.icon className="inline w-4 h-4 mb-1 mx-1" />{timeConfig.label}
@@ -564,95 +756,151 @@ function App() {
 
       </main>
 
-      {activeArea && !foundCreature && !isSearching && renderMapOverlay()}
+      {/* === SEARCH OVERLAY (Scanning / Aiming / Result) === */}
+      {(searchPhase === 'scanning' || searchPhase === 'aiming' || searchPhase === 'result') && (
+        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center animate-in fade-in duration-300 font-maru overflow-hidden">
+          {/* Dark Backdrop (Lighter for Aiming to show context) */}
+          <div className={`absolute inset-0 transition-colors duration-500 ${searchPhase === 'aiming' ? 'bg-black/20' : 'bg-black/90 backdrop-blur-md'}`}></div>
 
-      {/* === SEARCHING/FOUND OVERLAY (Radar & Reward) === */}
-      {(isSearching || foundCreature) && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex flex-col items-center justify-center p-6 animate-in fade-in duration-300 font-maru">
-
-          {!foundCreature ? (
-            <div className="flex flex-col items-center text-center w-full">
+          {/* 1. SCANNING PHASE */}
+          {searchPhase === 'scanning' && (
+            <div className="relative z-10 flex flex-col items-center text-center w-full">
               <div className="relative w-72 h-72 flex items-center justify-center mb-8">
-                {/* Radar Circles */}
                 <div className="absolute inset-0 border-4 border-pop-green/30 rounded-full animate-ping delay-75"></div>
                 <div className="absolute inset-0 border-4 border-pop-green/50 rounded-full animate-ping delay-500"></div>
                 <div className="absolute inset-8 border-4 border-dashed border-pop-green/40 rounded-full animate-spin-slow"></div>
-
                 <div className="relative bg-black rounded-full p-1 border-4 border-pop-green shadow-[0_0_30px_rgba(6,214,160,0.5)]">
                   <div className="w-48 h-48 bg-gray-900 rounded-full flex items-center justify-center overflow-hidden relative">
-                    {/* Scanning Line */}
                     <div className="absolute w-full h-1/2 bg-gradient-to-b from-transparent to-pop-green/50 top-0 left-0 origin-bottom animate-spin"></div>
                     <Radar className="w-24 h-24 text-pop-green relative z-10" />
                   </div>
                 </div>
               </div>
-
               <h2 className="text-3xl font-black text-white mb-2 animate-pulse tracking-widest">
-                スキャン中...
+                ん！？
               </h2>
-              <p className="text-pop-green font-bold text-lg">
-                生体反応を感知。捕捉しています。
+              <p className="text-pop-green font-bold text-lg animate-bounce">
+                何か動いた気がする……！！
               </p>
             </div>
-          ) : (
-            <div className="relative max-w-sm w-full animate-in zoom-in-50 duration-500">
-              {/* Confetti / Sparkles */}
-              <div className="absolute -top-20 -left-20 text-pop-yellow animate-bounce delay-100"><Star className="w-10 h-10 fill-current" /></div>
-              <div className="absolute -top-10 -right-10 text-pop-pink animate-bounce delay-200"><Heart className="w-8 h-8 fill-current" /></div>
-              <div className="absolute bottom-10 -right-10 text-pop-blue animate-bounce delay-300"><Star className="w-12 h-12 fill-current" /></div>
+          )}
 
-              <div className="bg-white p-2 rounded-3xl shadow-2xl rotate-1 border-4 border-white">
-                <div className="bg-stripes p-6 rounded-[20px] flex flex-col items-center text-center border-2 border-gray-100">
+          {/* 2. AIMING PHASE */}
+          {searchPhase === 'aiming' && (
+            <div className="absolute inset-0 flex flex-col items-center justify-center">
+              {/* Real World Background (Through the Lens) */}
+              {activeArea && (
+                <div className="absolute inset-0 z-0">
+                  <img
+                    src={activeArea.bgImage}
+                    alt="Background"
+                    className="w-full h-full object-cover scale-110 blur-[2px]"
+                  />
+                  <div className="absolute inset-0 bg-black/10"></div>
+                </div>
+              )}
 
-                  <div className="mb-4 relative">
-                    <span className="absolute -top-6 left-1/2 -translate-x-1/2 bg-pop-pink text-white px-6 py-2 rounded-full font-black text-xl shadow-pop border-2 border-white whitespace-nowrap z-20 animate-bounce">
-                      生物発見！
-                    </span>
-                    <div className="w-48 h-48 bg-white rounded-2xl border-4 border-pop-yellow shadow-sm overflow-hidden relative rotate-[-2deg]">
-                      <img
-                        src={foundCreature.imageUrl}
-                        className="w-full h-full object-cover"
-                        alt={foundCreature.name}
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-tr from-white/40 to-transparent pointer-events-none"></div>
-                    </div>
-                  </div>
+              {/* Camera HUD Image */}
+              <img
+                src="/image/camera_hud.png"
+                alt="HUD"
+                className="absolute inset-0 w-full h-full object-cover opacity-90 pointer-events-none z-10 mix-blend-screen"
+              />
 
-                  <div className="mb-6 w-full">
-                    <h3 className="text-2xl font-black text-kids-text mb-2">{foundCreature.name}</h3>
-                    <div className="flex justify-center gap-1 mb-2">
-                      {[...Array(foundCreature.dangerLevel)].map((_, i) => (
-                        <Star key={i} className="w-5 h-5 fill-pop-yellow text-pop-yellow" />
-                      ))}
-                    </div>
-                    <p className="text-sm font-bold text-gray-400 bg-gray-100 rounded-full inline-block px-3 py-1">
-                      レア度
-                    </p>
-                  </div>
-
-                  <div className="flex gap-3 w-full">
-                    <button
-                      onClick={() => {
-                        closeSearch();
-                        setSelectedCreature(foundCreature);
-                      }}
-                      className="flex-1 bg-pop-blue text-white py-3 rounded-xl font-black shadow-pop hover:translate-y-1 hover:shadow-none transition-all border-2 border-pop-blue"
-                    >
-                      詳細を確認
-                    </button>
-                    <button
-                      onClick={closeSearch}
-                      className="flex-1 bg-white text-gray-500 border-2 border-gray-200 py-3 rounded-xl font-black hover:bg-gray-50 transition-colors"
-                    >
-                      閉じる
-                    </button>
-                  </div>
+              {/* Target Animation */}
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
+                <div className="w-32 h-32 border-4 border-red-500/50 rounded-full animate-ping absolute inset-0"></div>
+                <div className="w-20 h-20 bg-red-500/20 backdrop-blur-sm rounded-full flex items-center justify-center animate-bounce border-2 border-red-500">
+                  <span className="text-4xl text-white drop-shadow-md">!</span>
                 </div>
               </div>
+
+              <div className="absolute top-24 text-center animate-pulse z-20">
+                <p className="text-red-500 font-black text-2xl tracking-widest bg-black/60 px-6 py-2 rounded border border-red-500/50">TARGET LOCKED</p>
+              </div>
+
+              {/* Shutter Button */}
+              <button
+                onClick={handleShutterClick}
+                className="absolute bottom-12 w-24 h-24 rounded-full border-4 border-white bg-red-600 shadow-[0_0_30px_rgba(255,0,0,0.6)] active:scale-95 transition-transform flex items-center justify-center z-50 group hover:bg-red-500 hover:scale-105"
+              >
+                <Camera className="w-10 h-10 text-white fill-current" />
+              </button>
+            </div>
+          )}
+
+          {/* 3. RESULT PHASE */}
+          {searchPhase === 'result' && (
+            <div className="relative z-50 max-w-sm w-full animate-in zoom-in-50 duration-500 p-4">
+              {/* SUCCESS: CREATURE FOUND */}
+              {foundCreature && (
+                <>
+                  <div className="absolute -top-20 -left-20 text-pop-yellow animate-bounce delay-100"><Star className="w-10 h-10 fill-current" /></div>
+                  <div className="absolute -top-10 -right-10 text-pop-pink animate-bounce delay-200"><Heart className="w-8 h-8 fill-current" /></div>
+
+                  <div className="bg-white p-2 rounded-3xl shadow-2xl rotate-1 border-4 border-white">
+                    <div className="bg-stripes p-6 rounded-[20px] flex flex-col items-center text-center border-2 border-gray-100">
+                      <div className="mb-4 relative">
+                        <span className="absolute -top-6 left-1/2 -translate-x-1/2 bg-pop-pink text-white px-6 py-2 rounded-full font-black text-xl shadow-pop border-2 border-white whitespace-nowrap z-20 animate-bounce">
+                          生物発見！
+                        </span>
+                        <div className="w-48 h-48 bg-white rounded-2xl border-4 border-pop-yellow shadow-sm overflow-hidden relative rotate-[-2deg]">
+                          <img src={foundCreature.imageUrl} className="w-full h-full object-cover" alt={foundCreature.name} />
+                        </div>
+                      </div>
+
+                      <div className="mb-6 w-full">
+                        <h3 className="text-2xl font-black text-kids-text mb-2">{foundCreature.name}</h3>
+                        <div className="flex justify-center gap-1 mb-2">
+                          {[...Array(foundCreature.dangerLevel)].map((_, i) => (
+                            <Star key={i} className="w-5 h-5 fill-pop-yellow text-pop-yellow" />
+                          ))}
+                        </div>
+                        <p className="text-sm font-bold text-gray-400 bg-gray-100 rounded-full inline-block px-3 py-1">レア度</p>
+                      </div>
+
+                      <div className="flex gap-3 w-full">
+                        <button onClick={() => { closeSearch(); setSelectedCreature(foundCreature); }} className="flex-1 bg-pop-blue text-white py-3 rounded-xl font-black shadow-pop hover:translate-y-1 transition-all border-2 border-pop-blue">詳細を確認</button>
+                        <button onClick={closeSearch} className="flex-1 bg-white text-gray-500 border-2 border-gray-200 py-3 rounded-xl font-black hover:bg-gray-50">閉じる</button>
+                      </div>
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {/* FAILURE: ITEM FOUND */}
+              {foundItem && (
+                <>
+                  <div className="absolute -top-10 left-1/2 -translate-x-1/2 text-gray-400 font-bold animate-pulse text-xl whitespace-nowrap">Escaped...</div>
+                  <div className="bg-white/90 p-2 rounded-3xl shadow-2xl -rotate-1 border-4 border-gray-300 mt-8">
+                    <div className="bg-gray-50 p-6 rounded-[20px] flex flex-col items-center text-center border-2 border-gray-200">
+                      <div className="mb-4 relative">
+                        <span className="absolute -top-6 left-1/2 -translate-x-1/2 bg-gray-500 text-white px-4 py-1 rounded-full font-black text-sm shadow-sm border-2 border-white whitespace-nowrap z-20">
+                          何か落ちている...
+                        </span>
+                        <div className="w-32 h-32 bg-white rounded-full border-4 border-gray-300 flex items-center justify-center text-6xl shadow-inner">
+                          {foundItem.icon}
+                        </div>
+                      </div>
+
+                      <div className="mb-4">
+                        <h3 className="text-xl font-black text-gray-700 mb-1">{foundItem.name}</h3>
+                        <p className="text-xs font-bold text-gray-500">{foundItem.description}</p>
+                      </div>
+
+                      <button onClick={closeSearch} className="w-full bg-gray-200 text-gray-600 py-3 rounded-xl font-black hover:bg-gray-300 transition-colors">
+                        ポケットに入れる
+                      </button>
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
           )}
         </div>
       )}
+
+      {activeArea && (searchPhase === 'walking' || searchPhase === 'idle') && renderMapOverlay()}
 
       {!activeArea && <BottomNav currentTab={currentTab} onTabChange={setCurrentTab} />}
 
@@ -662,7 +910,61 @@ function App() {
         isFavorite={selectedCreature ? favorites.includes(selectedCreature.id) : false}
         onToggleFavorite={toggleFavorite}
         userName={userName}
+        onSetBuddy={handleSetBuddy}
+        buddyId={buddy ? buddy.id : null}
       />
+
+      {/* Inventory Modal */}
+      {showInventory && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in text-left">
+          <div className="bg-white w-full max-w-md rounded-3xl p-6 shadow-2xl animate-in zoom-in-95 border-4 border-white relative font-maru">
+            <button
+              onClick={() => setShowInventory(false)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
+            >
+              <X className="w-6 h-6" />
+            </button>
+
+            <h2 className="text-2xl font-black text-kids-text mb-4 flex items-center gap-2">
+              <Box className="w-6 h-6 text-pop-blue" />
+              バッグ
+            </h2>
+
+            {inventory.length === 0 ? (
+              <div className="text-center py-10 text-gray-400 font-bold border-2 border-dashed border-gray-200 rounded-2xl">
+                <p>からっぽ</p>
+                <p className="text-xs mt-1">探索してアイテムを探そう</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 gap-3 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
+                {inventory.map((item, idx) => (
+                  <div key={`${item.id}-${idx}`} className="bg-gray-50 p-3 rounded-xl border border-gray-200 flex items-center gap-3">
+                    <div className="text-3xl bg-white w-12 h-12 flex items-center justify-center rounded-lg shadow-sm">
+                      {item.icon}
+                    </div>
+                    <div className="flex-1">
+                      <div className="font-bold text-gray-800">{item.name}</div>
+                      <div className="text-xs text-gray-500 line-clamp-1">{item.description}</div>
+                    </div>
+                    <button
+                      onClick={() => handleUseItem(item)}
+                      className="bg-pop-blue text-white text-xs font-bold px-3 py-2 rounded-lg hover:bg-blue-600 transition-colors shadow-sm ml-2 shrink-0"
+                    >
+                      わたす
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <div className="mt-4 pt-4 border-t border-gray-100 text-center">
+              <p className="text-xs text-gray-400 px-4">
+                アイテムを相棒にあげると、シンクロ率が上がります。ログインボーナスや探索中に見つかることがあります。
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

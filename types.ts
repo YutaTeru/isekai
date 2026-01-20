@@ -27,6 +27,11 @@ export interface Creature {
   videoUrl?: string;
   shortDesc: string;
   dangerLevel: 1 | 2 | 3 | 4 | 5;
+  // Buddy System Ext
+  syncRate: number; // 0-100
+  role: 'buddy' | 'none';
+  perk: string;
+  trivia: string[];
 }
 
 export interface NavItem {
@@ -59,3 +64,15 @@ export interface SubAreaSpot {
   icon: React.ComponentType<any>;
   activeTimes: TimeOfDay[];
 }
+
+export interface Item {
+  id: string;
+  name: string;
+  icon: string;
+  description: string;
+  // Souvenir System Ext
+  type: 'food' | 'material' | 'lore';
+  effectValue: number; // For syncRate
+}
+
+export type SearchPhase = 'idle' | 'walking' | 'scanning' | 'aiming' | 'result';

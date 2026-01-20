@@ -1,126 +1,150 @@
 <!DOCTYPE html>
 <html lang="ja">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>パラレル生物図鑑：身近な生き物編</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700;900&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Kiwi+Maru:wght@500&display=swap" rel="stylesheet">
-    <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            fontFamily: {
-              sans: ['Zen Maru Gothic', 'sans-serif'],
-              serif: ['Kiwi Maru', 'serif'],
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>パラレル生物図鑑：身近な生き物編</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700;900&family=DotGothic16&display=swap"
+    rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Kiwi+Maru:wght@500&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Zen Maru Gothic', 'sans-serif'],
+            serif: ['Kiwi Maru', 'serif'],
+          },
+          colors: {
+            'kids-bg': '#FFF9F0',       // 優しいクリーム色
+            'kids-text': '#4A4A4A',     // 濃いグレー（黒より優しい）
+            'pop-blue': '#4CC9F0',      // 空色
+            'pop-pink': '#F72585',      // 元気なピンク
+            'pop-yellow': '#FFD60A',    // 鮮やかな黄色
+            'pop-green': '#06D6A0',     // 元気な緑
+            'pop-purple': '#7209B7',    // ポップな紫
+            'card-white': '#FFFFFF',
+            'pastel-blue': '#E0F7FA',
+            'pastel-pink': '#FCE4EC',
+            'pastel-yellow': '#FFF9C4',
+            'pastel-green': '#E8F5E9',
+          },
+          backgroundImage: {
+            'dots': "radial-gradient(#E0E0E0 2px, transparent 2px)",
+            'stripes': "repeating-linear-gradient(45deg, rgba(255,255,255,0.5), rgba(255,255,255,0.5) 10px, transparent 10px, transparent 20px)",
+          },
+          boxShadow: {
+            'pop': '4px 4px 0px 0px rgba(0,0,0,0.15)',
+            'pop-hover': '2px 2px 0px 0px rgba(0,0,0,0.15)',
+            'card': '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)',
+            'inner-soft': 'inset 0 2px 4px 0 rgba(0, 0, 0, 0.06)',
+          },
+          animation: {
+            'bounce-slight': 'bounce-slight 2s infinite',
+            'wiggle': 'wiggle 1s ease-in-out infinite',
+            'spin-slow': 'spin 8s linear infinite',
+            'float': 'float 3s ease-in-out infinite',
+          },
+          keyframes: {
+            'bounce-slight': {
+              '0%, 100%': { transform: 'translateY(-3px)' },
+              '50%': { transform: 'translateY(3px)' },
             },
-            colors: {
-              'kids-bg': '#FFF9F0',       // 優しいクリーム色
-              'kids-text': '#4A4A4A',     // 濃いグレー（黒より優しい）
-              'pop-blue': '#4CC9F0',      // 空色
-              'pop-pink': '#F72585',      // 元気なピンク
-              'pop-yellow': '#FFD60A',    // 鮮やかな黄色
-              'pop-green': '#06D6A0',     // 元気な緑
-              'pop-purple': '#7209B7',    // ポップな紫
-              'card-white': '#FFFFFF',
-              'pastel-blue': '#E0F7FA',
-              'pastel-pink': '#FCE4EC',
-              'pastel-yellow': '#FFF9C4',
-              'pastel-green': '#E8F5E9',
+            'wiggle': {
+              '0%, 100%': { transform: 'rotate(-3deg)' },
+              '50%': { transform: 'rotate(3deg)' },
             },
-            backgroundImage: {
-              'dots': "radial-gradient(#E0E0E0 2px, transparent 2px)",
-              'stripes': "repeating-linear-gradient(45deg, rgba(255,255,255,0.5), rgba(255,255,255,0.5) 10px, transparent 10px, transparent 20px)",
-            },
-            boxShadow: {
-              'pop': '4px 4px 0px 0px rgba(0,0,0,0.15)',
-              'pop-hover': '2px 2px 0px 0px rgba(0,0,0,0.15)',
-              'card': '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)',
-              'inner-soft': 'inset 0 2px 4px 0 rgba(0, 0, 0, 0.06)',
-            },
-            animation: {
-              'bounce-slight': 'bounce-slight 2s infinite',
-              'wiggle': 'wiggle 1s ease-in-out infinite',
-              'spin-slow': 'spin 8s linear infinite',
-              'float': 'float 3s ease-in-out infinite',
-            },
-            keyframes: {
-              'bounce-slight': {
-                '0%, 100%': { transform: 'translateY(-3px)' },
-                '50%': { transform: 'translateY(3px)' },
-              },
-              'wiggle': {
-                '0%, 100%': { transform: 'rotate(-3deg)' },
-                '50%': { transform: 'rotate(3deg)' },
-              },
-              'float': {
-                '0%, 100%': { transform: 'translateY(0)' },
-                '50%': { transform: 'translateY(-10px)' },
-              }
+            'float': {
+              '0%, 100%': { transform: 'translateY(0)' },
+              '50%': { transform: 'translateY(-10px)' },
             }
           }
         }
       }
-    </script>
-    <style>
-      body {
-        background-color: #FFF9F0;
-        color: #4A4A4A;
-        background-image: radial-gradient(#FFD60A 2px, transparent 2px), radial-gradient(#4CC9F0 2px, transparent 2px);
-        background-size: 30px 30px;
-        background-position: 0 0, 15px 15px;
-        font-family: 'Zen Maru Gothic', sans-serif;
-        overflow-x: hidden;
-      }
-      /* Custom Scrollbar - Cute Version */
-      ::-webkit-scrollbar {
-        width: 12px;
-      }
-      ::-webkit-scrollbar-track {
-        background: #FFF9F0;
-        border-radius: 10px;
-      }
-      ::-webkit-scrollbar-thumb {
-        background: #FFD60A;
-        border-radius: 10px;
-        border: 3px solid #FFF9F0;
-      }
-      .font-maru {
-        font-family: 'Zen Maru Gothic', sans-serif;
-      }
-      
-      /* アニメーション */
-      .particle {
-        position: fixed;
+    }
+  </script>
+  <style>
+    body {
+      background-color: #FFF9F0;
+      color: #4A4A4A;
+      background-image: radial-gradient(#FFD60A 2px, transparent 2px), radial-gradient(#4CC9F0 2px, transparent 2px);
+      background-size: 30px 30px;
+      background-position: 0 0, 15px 15px;
+      font-family: 'Zen Maru Gothic', sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* Custom Scrollbar - Cute Version */
+    ::-webkit-scrollbar {
+      width: 12px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #FFF9F0;
+      border-radius: 10px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #FFD60A;
+      border-radius: 10px;
+      border: 3px solid #FFF9F0;
+    }
+
+    .font-maru {
+      font-family: 'Zen Maru Gothic', sans-serif;
+    }
+
+    /* アニメーション */
+    .particle {
+      position: fixed;
+      bottom: -50px;
+      background-color: rgba(255, 214, 10, 0.4);
+      border-radius: 50%;
+      pointer-events: none;
+      animation: drift 20s infinite linear;
+      z-index: -1;
+    }
+
+    .particle.blue {
+      background-color: rgba(76, 201, 240, 0.4);
+    }
+
+    .particle.pink {
+      background-color: rgba(247, 37, 133, 0.4);
+    }
+
+    @keyframes drift {
+      0% {
         bottom: -50px;
-        background-color: rgba(255, 214, 10, 0.4);
-        border-radius: 50%;
-        pointer-events: none;
-        animation: drift 20s infinite linear;
-        z-index: -1;
-      }
-      .particle.blue {
-        background-color: rgba(76, 201, 240, 0.4);
-      }
-      .particle.pink {
-        background-color: rgba(247, 37, 133, 0.4);
+        transform: translateX(0) rotate(0deg);
+        opacity: 0;
       }
 
-      @keyframes drift {
-        0% { bottom: -50px; transform: translateX(0) rotate(0deg); opacity: 0; }
-        10% { opacity: 0.8; }
-        90% { opacity: 0.8; }
-        100% { bottom: 110vh; transform: translateX(50px) rotate(360deg); opacity: 0; }
+      10% {
+        opacity: 0.8;
       }
-      
-      .glass-panel {
-        background: rgba(255, 255, 255, 0.7);
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-        border: 2px solid rgba(255, 255, 255, 0.8);
+
+      90% {
+        opacity: 0.8;
       }
-    </style>
+
+      100% {
+        bottom: 110vh;
+        transform: translateX(50px) rotate(360deg);
+        opacity: 0;
+      }
+    }
+
+    .glass-panel {
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 2px solid rgba(255, 255, 255, 0.8);
+    }
+  </style>
   <script type="importmap">
 {
   "imports": {
@@ -131,17 +155,26 @@
   }
 }
 </script>
-<link rel="stylesheet" href="/index.css">
+  <link rel="stylesheet" href="/index.css">
 </head>
-  <body>
-    <div id="root"></div>
-    <div class="particle" style="width: 15px; height: 15px; left: 10%; animation-duration: 15s; animation-delay: 0s;"></div>
-    <div class="particle blue" style="width: 25px; height: 25px; left: 20%; animation-duration: 22s; animation-delay: 5s;"></div>
-    <div class="particle pink" style="width: 10px; height: 10px; left: 35%; animation-duration: 18s; animation-delay: 2s;"></div>
-    <div class="particle" style="width: 30px; height: 30px; left: 50%; animation-duration: 25s; animation-delay: 0s;"></div>
-    <div class="particle blue" style="width: 12px; height: 12px; left: 65%; animation-duration: 20s; animation-delay: 8s;"></div>
-    <div class="particle pink" style="width: 22px; height: 22px; left: 85%; animation-duration: 23s; animation-delay: 3s;"></div>
-    <div class="particle" style="width: 18px; height: 18px; left: 95%; animation-duration: 17s; animation-delay: 10s;"></div>
+
+<body>
+  <div id="root"></div>
+  <div class="particle" style="width: 15px; height: 15px; left: 10%; animation-duration: 15s; animation-delay: 0s;">
+  </div>
+  <div class="particle blue"
+    style="width: 25px; height: 25px; left: 20%; animation-duration: 22s; animation-delay: 5s;"></div>
+  <div class="particle pink"
+    style="width: 10px; height: 10px; left: 35%; animation-duration: 18s; animation-delay: 2s;"></div>
+  <div class="particle" style="width: 30px; height: 30px; left: 50%; animation-duration: 25s; animation-delay: 0s;">
+  </div>
+  <div class="particle blue"
+    style="width: 12px; height: 12px; left: 65%; animation-duration: 20s; animation-delay: 8s;"></div>
+  <div class="particle pink"
+    style="width: 22px; height: 22px; left: 85%; animation-duration: 23s; animation-delay: 3s;"></div>
+  <div class="particle" style="width: 18px; height: 18px; left: 95%; animation-duration: 17s; animation-delay: 10s;">
+  </div>
   <script type="module" src="/index.tsx"></script>
 </body>
+
 </html>
