@@ -336,19 +336,26 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen font-maru pb-32 overflow-x-hidden relative transition-colors duration-1000 bg-transparent">
+    <div
+      className="min-h-screen font-maru pb-32 overflow-x-hidden relative transition-colors duration-1000"
+      style={{
+        backgroundImage: `url('/bg/home_pattern.png')`,
+        backgroundSize: '500px',
+        backgroundRepeat: 'repeat'
+      }}
+    >
 
       {/* Header */}
       <header
         className={`sticky top-0 z-30 transition-all duration-300 ${scrolled
           ? 'glass-panel py-2 rounded-b-3xl shadow-sm mx-2'
-          : 'bg-transparent py-4'
+          : 'bg-white/80 backdrop-blur-sm py-4 border-b-2 border-dashed border-gray-200'
           }`}
       >
         <div className="container mx-auto px-4 max-w-3xl flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-pop-yellow border-4 border-white flex items-center justify-center text-white shadow-pop">
-              <BookOpen className="w-7 h-7" strokeWidth={3} />
+            <div className="w-14 h-14 rounded-full bg-white border-4 border-white flex items-center justify-center shadow-pop overflow-hidden">
+              <img src="/char/explorer.png" alt="Explorer" className="w-full h-full object-cover transform scale-110" />
             </div>
             <div>
               <h1 className="font-black text-xl text-kids-text tracking-wide drop-shadow-sm">

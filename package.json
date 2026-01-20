@@ -11,10 +11,7 @@
   "dependencies": {
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
-<<<<<<< HEAD
-=======
     "@google/genai": "^1.37.0",
->>>>>>> cf1542257deab439c0dd24b2b209abec6862133a
     "lucide-react": "^0.562.0"
   },
   "devDependencies": {
