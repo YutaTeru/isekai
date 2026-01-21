@@ -100,15 +100,13 @@ const Prologue: React.FC<PrologueProps> = ({ onComplete }) => {
 
   const handleNameSubmit = () => {
     if (userName.trim()) {
-      setStep('camera');
+      // Direct completion, skipping camera
+      onComplete(userName);
     }
   };
 
   const handleCameraClick = () => {
-    setFinalZoom(true);
-    setTimeout(() => {
-      onComplete(userName);
-    }, 1500);
+    // Deprecated
   };
 
   return (
@@ -304,40 +302,8 @@ const Prologue: React.FC<PrologueProps> = ({ onComplete }) => {
               </div>
             </div>
 
-            {/* --- ITEM 3: CAMERA --- */}
-            <div
-              className={`absolute transition-all duration-700
-                ${step === 'camera'
-                  ? 'top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 scale-110 z-20 cursor-pointer animate-pulse-slow'
-                  : 'top-10 right-10 rotate-[15deg] scale-75 opacity-40 grayscale'
-                }
-              `}
-              onClick={step === 'camera' ? handleCameraClick : undefined}
-            >
-              <div className="relative group">
-                <div className="w-64 h-48 bg-gray-800 rounded-3xl shadow-2xl flex items-center justify-center border-t-8 border-gray-600 relative overflow-hidden">
-                  <div className="w-32 h-32 rounded-full border-8 border-gray-700 bg-gray-900 flex items-center justify-center shadow-inner relative z-10 overflow-hidden transform transition-transform duration-700 group-hover:scale-105">
-                    <div className="absolute top-4 right-8 w-8 h-8 bg-white/10 rounded-full blur-sm"></div>
-                    <div className={`w-24 h-24 rounded-full border-4 border-pop-blue/50 flex items-center justify-center transition-all duration-1000 ${step === 'camera' ? 'bg-pop-blue/10 animate-pulse' : 'bg-transparent'}`}>
-                      <div className="w-16 h-16 rounded-full bg-black/50 backdrop-blur-sm"></div>
-                    </div>
-                  </div>
-                  <div className="absolute top-4 right-6 w-8 h-4 bg-yellow-200/50 rounded-sm"></div>
-                  <div className="absolute left-0 top-0 bottom-0 w-8 bg-gray-700/50 border-r border-gray-900/50"></div>
-                  <div className="absolute bottom-3 left-1/2 -translate-x-1/2 text-[10px] text-gray-500 font-mono tracking-widest">
-                    PARALLEL-CAM V2.0
-                  </div>
-                </div>
-                <div className="absolute -right-12 top-1/2 w-32 h-64 border-r-8 border-b-8 border-gray-900/40 rounded-[4rem] -z-10 transform rotate-12"></div>
-                {step === 'camera' && (
-                  <div className="absolute -bottom-16 left-0 right-0 text-center">
-                    <span className="inline-block bg-white text-kids-text px-6 py-2 rounded-full font-black shadow-lg animate-bounce">
-                      カメラを構える（スタート）
-                    </span>
-                  </div>
-                )}
-              </div>
-            </div>
+            {/* --- ITEM 3: CAMERA (Removed) --- */}
+            {/* Camera element removed as requested */}
 
             {/* --- MODAL: LETTER CONTENT --- */}
             {isLetterOpen && (

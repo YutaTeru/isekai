@@ -11,7 +11,7 @@ interface GameMapProps {
 }
 
 const TILE_SIZE = 48; // px
-const STEP_DELAY = 150; // ms
+const STEP_DELAY = 220; // ms
 const MAP_SIZE_TILES = 25;
 
 // Convert % spots to grid coordinates approximately
@@ -169,19 +169,19 @@ const GameMap: React.FC<GameMapProps> = ({ currentArea, spots, activeDirection, 
 
             {/* World Layer */}
             <div
-                className="absolute top-0 left-0 transition-transform duration-300 ease-linear will-change-transform image-rendering-pixelated"
+                className="absolute top-0 left-0 ease-linear will-change-transform image-rendering-pixelated"
                 style={{
                     transform: `translate3d(${mapTranslateX}px, ${mapTranslateY}px, 0)`,
                     width: `${mapWidthPx}px`,
                     height: `${mapHeightPx}px`,
-                    imageRendering: 'pixelated'
+                    transitionDuration: `${STEP_DELAY}ms`,
+                    // imageRendering: 'pixelated' // Remove pixelated for high-res map
                 }}
             >
                 {/* Map Image */}
                 <img
-                    src="/bg/pixel_park.png"
-                    className="absolute top-0 left-0 w-full h-full object-cover rendering-pixelated"
-                    style={{ imageRendering: 'pixelated' }}
+                    src={currentArea.mapImage}
+                    className="absolute top-0 left-0 w-full h-full object-cover"
                     alt="World Map"
                 />
 
@@ -199,7 +199,13 @@ const GameMap: React.FC<GameMapProps> = ({ currentArea, spots, activeDirection, 
                                 height: TILE_SIZE
                             }}
                         >
-                            <MapPin className="w-8 h-8 text-pop-pink drop-shadow-lg fill-white animate-bounce" strokeWidth={2.5} />
+                            {/* CREATURE ICON PIN */}
+                            <img
+                                src="/icons/creature_pin.png"
+                                className="w-10 h-10 object-contain drop-shadow-md animate-bounce"
+                                style={{ imageRendering: 'pixelated' }}
+                                alt="Signal"
+                            />
                             <div className="w-4 h-1.5 bg-black/30 rounded-full blur-[2px]"></div>
                         </div>
                     );
@@ -208,22 +214,22 @@ const GameMap: React.FC<GameMapProps> = ({ currentArea, spots, activeDirection, 
 
             {/* Player Layer (Dynamic Position based on clamping) */}
             <div
-                className="absolute z-10 w-12 h-12 flex items-center justify-center pointer-events-none transition-all duration-300 ease-linear"
+                className="absolute z-10 w-20 h-20 flex items-center justify-center pointer-events-none ease-linear"
                 style={{
                     left: playerScreenX,
                     top: playerScreenY,
-                    transform: 'translate(-50%, -50%)'
+                    transform: 'translate(-50%, -50%)',
+                    transitionDuration: `${STEP_DELAY}ms`
                 }}
             >
                 <img
-                    src="/char/hero_pixel.png"
+                    src="/char/protagonist_transparent.png"
                     className={`
-                   w-12 h-12 object-contain rendering-pixelated
+                   w-24 h-24 object-contain mapping-pixelated
                    ${activeDirection ? 'animate-bounce-fast' : ''}
                `}
                     style={{
                         imageRendering: 'pixelated'
-                        // Removed mixBlendMode as it might look bad on green bg.
                     }}
                     alt="Hero"
                 />

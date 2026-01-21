@@ -19,7 +19,9 @@ const SEARCH_AREAS: SearchArea[] = [
     icon: Trees,
     color: 'bg-[#C8E6C9] text-[#2E7D32] border-[#4CAF50]',
     description: '多くの生物が観測される基本エリア。遊具周辺は要チェック。',
-    bgImage: '/bg/park.png'
+    bgImage: '/bg/park.png',
+    mapImage: '/bg/park_map_highres.png',
+    fpsImage: '/bg/park_fps.png'
   },
   {
     id: 'garden',
@@ -28,7 +30,9 @@ const SEARCH_AREAS: SearchArea[] = [
     icon: Footprints,
     color: 'bg-[#FFECB3] text-[#F57F17] border-[#FFC107]',
     description: '物陰に潜む小型生物が多い。隙間や影を調査せよ。',
-    bgImage: '/bg/garden.png'
+    bgImage: '/bg/garden.png',
+    mapImage: '/bg/garden_map_highres.png',
+    fpsImage: '/bg/garden_fps.png'
   },
   {
     id: 'water',
@@ -37,7 +41,9 @@ const SEARCH_AREAS: SearchArea[] = [
     icon: Waves,
     color: 'bg-[#E1F5FE] text-[#0277BD] border-[#29B6F6]',
     description: '水棲生物の生息域。水面の波紋や湿った場所を探れ。',
-    bgImage: '/bg/water.png'
+    bgImage: '/bg/water.png',
+    mapImage: '/bg/water_map_highres.png',
+    fpsImage: '/bg/water_fps.png'
   },
   {
     id: 'house',
@@ -46,7 +52,9 @@ const SEARCH_AREAS: SearchArea[] = [
     icon: Home,
     color: 'bg-[#E1BEE7] text-[#7B1FA2] border-[#9C27B0]',
     description: '人工物に擬態する生物が生息。家具や家電製品の裏側など。',
-    bgImage: '/bg/house.png'
+    bgImage: '/bg/house.png',
+    mapImage: '/bg/house_map_highres.png',
+    fpsImage: '/bg/house_fps.png'
   },
 ];
 
@@ -451,9 +459,11 @@ function App() {
     <div
       className="min-h-screen font-maru pb-32 overflow-x-hidden relative transition-colors duration-1000"
       style={{
-        backgroundImage: `url('/bg/home_pattern.png')`,
-        backgroundSize: '500px',
-        backgroundRepeat: 'repeat'
+        backgroundImage: `url('/image/home_bg_desk.png')`,
+        backgroundSize: '100% 100%',
+        backgroundPosition: 'center',
+        backgroundAttachment: 'fixed',
+        backgroundRepeat: 'no-repeat'
       }}
     >
 
@@ -629,7 +639,9 @@ function App() {
                     icon: Star,
                     color: 'bg-slate-800 text-white border-slate-600',
                     description: '詳細不明。高レベルの観測技術が必要。',
-                    bgImage: 'https://images.unsplash.com/photo-1516339901601-2e1b62dc0c45?q=80&w=1000&auto=format&fit=crop'
+                    bgImage: 'https://images.unsplash.com/photo-1516339901601-2e1b62dc0c45?q=80&w=1000&auto=format&fit=crop',
+                    mapImage: '/bg/park_map_highres.png', // Fallback
+                    fpsImage: '/bg/park_fps.png' // Fallback
                   })
                 }}
                 className="relative overflow-hidden group p-4 rounded-3xl border-4 border-pop-purple bg-[#240046] text-white shadow-pop hover:shadow-pop-hover hover:translate-y-1 transition-all duration-200 text-left col-span-1 sm:col-span-2"
@@ -759,8 +771,22 @@ function App() {
       {/* === SEARCH OVERLAY (Scanning / Aiming / Result) === */}
       {(searchPhase === 'scanning' || searchPhase === 'aiming' || searchPhase === 'result') && (
         <div className="fixed inset-0 z-50 flex flex-col items-center justify-center animate-in fade-in duration-300 font-maru overflow-hidden">
-          {/* Dark Backdrop (Lighter for Aiming to show context) */}
-          <div className={`absolute inset-0 transition-colors duration-500 ${searchPhase === 'aiming' ? 'bg-black/20' : 'bg-black/90 backdrop-blur-md'}`}></div>
+
+          {/* BACKGROUND LAYER (Persists for Aiming and Result) */}
+          {(searchPhase === 'aiming' || searchPhase === 'result') && activeArea && (
+            <div className="absolute inset-0 z-0">
+              <img
+                src={activeArea.fpsImage}
+                alt="Background"
+                className="w-full h-full object-cover scale-110"
+              />
+              <div className="absolute inset-0 bg-black/10"></div>
+            </div>
+          )}
+
+          {/* Dark Backdrop (Lighter for Aiming/Result to show context) */}
+          <div className={`absolute inset-0 transition-colors duration-500 z-0 ${(searchPhase === 'aiming' || searchPhase === 'result') ? 'bg-black/20' : 'bg-black/90 backdrop-blur-md'}`}></div>
+
 
           {/* 1. SCANNING PHASE */}
           {searchPhase === 'scanning' && (
@@ -787,18 +813,7 @@ function App() {
 
           {/* 2. AIMING PHASE */}
           {searchPhase === 'aiming' && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center">
-              {/* Real World Background (Through the Lens) */}
-              {activeArea && (
-                <div className="absolute inset-0 z-0">
-                  <img
-                    src={activeArea.bgImage}
-                    alt="Background"
-                    className="w-full h-full object-cover scale-110 blur-[2px]"
-                  />
-                  <div className="absolute inset-0 bg-black/10"></div>
-                </div>
-              )}
+            <div className="absolute inset-0 flex flex-col items-center justify-center z-10">
 
               {/* Camera HUD Image */}
               <img

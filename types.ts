@@ -54,6 +54,8 @@ export interface SearchArea {
   color: string;
   description: string;
   bgImage: string;
+  mapImage: string;
+  fpsImage: string;
 }
 
 export interface SubAreaSpot {
