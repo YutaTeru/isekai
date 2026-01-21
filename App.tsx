@@ -109,7 +109,10 @@ const getTimeConfig = (time: TimeOfDay) => {
   }
 };
 
+import TitleScreen from './components/TitleScreen';
+
 function App() {
+  const [showTitle, setShowTitle] = useState(true);
   const [showPrologue, setShowPrologue] = useState(true);
   const [userName, setUserName] = useState('調査員');
   const [currentTab, setCurrentTab] = useState('explore');
@@ -447,6 +450,10 @@ function App() {
   };
 
   // --- RENDER ---
+
+  if (showTitle) {
+    return <TitleScreen onStart={() => setShowTitle(false)} />;
+  }
 
   if (showPrologue) {
     return <Prologue onComplete={(name) => {
