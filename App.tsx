@@ -460,10 +460,11 @@ function App() {
       className="min-h-screen font-maru pb-32 overflow-x-hidden relative transition-colors duration-1000"
       style={{
         backgroundImage: `url('/image/home_bg_desk.png')`,
-        backgroundSize: '100% 100%',
+        backgroundSize: 'contain',
         backgroundPosition: 'center',
         backgroundAttachment: 'fixed',
-        backgroundRepeat: 'no-repeat'
+        backgroundRepeat: 'no-repeat',
+        backgroundColor: '#3E2723' // Fallback color matching desk
       }}
     >
 
