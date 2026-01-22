@@ -24,6 +24,7 @@ export interface Creature {
   activeTime: TimeOfDay[];
   imageUrl: string;
   sketchUrl?: string; // 手描きのスケッチ画像（未発見時に使用）
+  realImageUrl?: string; // 実写風画像（高シンクロ時などに使用）
   videoUrl?: string;
   shortDesc: string;
   dangerLevel: 1 | 2 | 3 | 4 | 5;

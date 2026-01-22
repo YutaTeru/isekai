@@ -162,7 +162,42 @@ export const CREATURES: Creature[] = [
       '太陽が出ると蒸発して消える。',
       '実は高所恐怖症。'
     ]
-  }
+  },
+  {
+    id: '010',
+    name: 'ヤキソバ・イヌ',
+    latinName: 'Canis Friednoodle',
+    type: CreatureType.Park,
+    activeTime: [TimeOfDay.Day, TimeOfDay.Sunset],
+    imageUrl: '/char/yakisoba_art.jpg',
+    sketchUrl: '/char/yakisoba_sketch.jpg',
+    realImageUrl: '/char/yakisoba_real.jpg',
+    shortDesc: '麺のような体毛を持つ犬型生物。香ばしい匂いで獲物を誘う。実はソース味と塩味の亜種が存在するらしい。',
+    dangerLevel: 3,
+    syncRate: 0,
+    role: 'none',
+    perk: '空腹時にアイテム発見率UP',
+    trivia: [
+      '雨に濡れるとふやけて動きが鈍る。',
+      '紅生姜のようなアクセサリーを好む。',
+      '熱い場所が好き。'
+    ]
+  },
+  // --- PLACEHOLDERS TO REACH 50 ---
+  ...Array.from({ length: 40 }, (_, i) => ({
+    id: `uj_${i + 11}`,
+    name: '？？？',
+    latinName: 'Unobserved Specimen',
+    type: CreatureType.Mystery,
+    activeTime: [TimeOfDay.Any],
+    imageUrl: '/image/unknown_creature.png', // Fallback image needed or handle in UI
+    shortDesc: '未観測の生体反応。詳細な調査が必要。',
+    dangerLevel: 1 as 1 | 2 | 3 | 4 | 5,
+    syncRate: 0,
+    role: 'none' as 'none',
+    perk: '???',
+    trivia: []
+  }))
 ];
 
 export const APP_NAME = "パラレル生物図鑑";

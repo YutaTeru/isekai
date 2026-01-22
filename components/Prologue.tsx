@@ -337,7 +337,7 @@ const Prologue: React.FC<PrologueProps> = ({ onComplete }) => {
                       {/* Professor Image */}
                       <div className="w-24 h-24 rounded-full border-4 border-[#E0E0E0] overflow-hidden shadow-sm bg-gray-100 rotate-2">
                         <img
-                          src="/char/professor.png"
+                          src="/char/professor_v2.png"
                           alt="Professor"
                           className="w-full h-full object-cover"
                         />

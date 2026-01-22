@@ -12,6 +12,7 @@ interface CreatureDetailModalProps {
   userName: string;
   onSetBuddy: (creature: Creature) => void;
   buddyId: string | null;
+  isLocked?: boolean;
 }
 
 const SUGGESTED_QUESTIONS = [
@@ -21,8 +22,8 @@ const SUGGESTED_QUESTIONS = [
   "弱点はありますか？"
 ];
 
-const CreatureDetailModal: React.FC<CreatureDetailModalProps> = ({ creature, onClose, isFavorite, onToggleFavorite, userName, onSetBuddy, buddyId }) => {
-  const [activeTab, setActiveTab] = useState<'sketch' | 'observation'>('sketch');
+const CreatureDetailModal: React.FC<CreatureDetailModalProps> = ({ creature, onClose, isFavorite, onToggleFavorite, userName, onSetBuddy, buddyId, isLocked = false }) => {
+  const [activeTab, setActiveTab] = useState<'sketch' | 'art' | 'real'>('art');
   const [mode, setMode] = useState<'info' | 'chat'>('info');
   const [lore, setLore] = useState<string | null>(null);
   const [isLoadingLore, setIsLoadingLore] = useState(false);
@@ -38,9 +39,10 @@ const CreatureDetailModal: React.FC<CreatureDetailModalProps> = ({ creature, onC
       setLore(null);
       setChatHistory([]);
       setMode('info');
-      setActiveTab('sketch');
+      // If locked, force sketch. Else default to Art.
+      setActiveTab(isLocked ? 'sketch' : 'art');
     }
-  }, [creature]);
+  }, [creature, isLocked]);
 
   useEffect(() => {
     if (chatEndRef.current) {
@@ -72,6 +74,10 @@ const CreatureDetailModal: React.FC<CreatureDetailModalProps> = ({ creature, onC
     setIsChatLoading(false);
   };
 
+  const currentImage = activeTab === 'sketch' ? (creature.sketchUrl || creature.imageUrl)
+    : activeTab === 'real' ? creature.realImageUrl
+      : creature.imageUrl;
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-200 font-maru">
       {/* Backdrop */}
@@ -90,68 +96,113 @@ const CreatureDetailModal: React.FC<CreatureDetailModalProps> = ({ creature, onC
           <div className="absolute bottom-0 right-0 w-40 h-40 bg-pop-green/20 rounded-full blur-3xl"></div>
 
           {/* Header Controls */}
-          <div className="absolute top-4 left-4 z-20">
-            <button
-              onClick={() => onToggleFavorite(creature.id)}
-              className={`p-3 rounded-full transition-all duration-300 shadow-pop border-2 border-white ${isFavorite ? 'bg-pop-pink text-white scale-110' : 'bg-white text-gray-300 hover:text-pop-pink'}`}
-              title="お気に入りに追加"
-            >
-              <Heart className={`w-6 h-6 ${isFavorite ? 'fill-current' : ''}`} />
-            </button>
+          {!isLocked && (
+            <div className="absolute top-4 left-4 z-20">
+              <button
+                onClick={() => onToggleFavorite(creature.id)}
+                className={`p-3 rounded-full transition-all duration-300 shadow-pop border-2 border-white ${isFavorite ? 'bg-pop-pink text-white scale-110' : 'bg-white text-gray-300 hover:text-pop-pink'}`}
+                title="お気に入りに追加"
+              >
+                <Heart className={`w-6 h-6 ${isFavorite ? 'fill-current' : ''}`} />
+              </button>
 
-            {/* Buddy Button */}
-            <button
-              onClick={() => onSetBuddy(creature)}
-              disabled={buddyId === creature.id}
-              className={`mt-2 p-3 rounded-full transition-all duration-300 shadow-pop border-2 border-white flex items-center justify-center ${buddyId === creature.id
+              {/* Buddy Button */}
+              <button
+                onClick={() => onSetBuddy(creature)}
+                disabled={buddyId === creature.id}
+                className={`mt-2 p-3 rounded-full transition-all duration-300 shadow-pop border-2 border-white flex items-center justify-center ${buddyId === creature.id
                   ? 'bg-pop-green text-white cursor-default'
                   : 'bg-white text-gray-300 hover:text-pop-green hover:scale-110'
-                }`}
-              title="相棒にする"
-            >
-              <Star className={`w-6 h-6 ${buddyId === creature.id ? 'fill-current' : ''}`} />
-            </button>
-          </div>
+                  }`}
+                title="相棒にする"
+              >
+                <Star className={`w-6 h-6 ${buddyId === creature.id ? 'fill-current' : ''}`} />
+              </button>
+            </div>
+          )}
 
           {/* Image Frame */}
-          <div className="relative w-full h-full md:aspect-[4/3] bg-white rounded-3xl shadow-card mt-0 md:mt-8 overflow-hidden border-4 border-white group">
-            {activeTab === 'sketch' ? (
+          <div className="relative w-full h-full bg-white rounded-3xl shadow-card mt-0 md:mt-8 overflow-hidden border-4 border-white group flex items-center justify-center bg-gray-50">
+            {currentImage ? (
               <img
-                src={creature.imageUrl}
+                src={currentImage}
                 alt={creature.name}
-                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                className={`w-full h-full object-contain transition-transform duration-700 group-hover:scale-105 ${activeTab === 'sketch' ? 'sepia-[.3]' : ''}`}
               />
             ) : (
               <div className="w-full h-full flex flex-col items-center justify-center bg-gray-900 text-white relative overflow-hidden">
-                <Play className="w-16 h-16 mb-2 opacity-80" />
-                <p className="font-bold text-sm">映像データ準備中</p>
+                <ImageIcon className="w-16 h-16 mb-2 opacity-50" />
+                <p className="font-bold text-sm">NO IMAGE</p>
               </div>
             )}
 
             {/* Level Badge */}
-            <div className="absolute bottom-3 right-3 bg-white/90 backdrop-blur text-kids-text px-4 py-2 rounded-full text-xs font-black shadow-sm flex items-center gap-1 border border-white">
-              レア度
-              <span className="flex gap-0.5">
-                {[...Array(creature.dangerLevel)].map((_, i) => <Star key={i} className="w-4 h-4 text-pop-yellow fill-pop-yellow" />)}
-              </span>
-            </div>
+            {!isLocked && (
+              <div className="absolute bottom-3 right-3 bg-white/90 backdrop-blur text-kids-text px-4 py-2 rounded-full text-xs font-black shadow-sm flex items-center gap-1 border border-white">
+                レア度
+                <span className="flex gap-0.5">
+                  {[...Array(creature.dangerLevel)].map((_, i) => <Star key={i} className="w-4 h-4 text-pop-yellow fill-pop-yellow" />)}
+                </span>
+              </div>
+            )}
+
+            {/* Target Badge for Locked items */}
+            {isLocked && (
+              <div className="absolute top-4 right-4 bg-red-500 text-white px-4 py-1 rounded-full font-black border-2 border-white shadow-pop rotate-6 animate-pulse z-10">
+                TARGET
+              </div>
+            )}
           </div>
 
           {/* Media Switcher */}
-          <div className="hidden md:flex justify-center mt-6 gap-3 relative z-10">
+          <div className="hidden md:flex justify-center mt-6 gap-2 relative z-10">
+            {/* Sketch Tab */}
             <button
               onClick={() => setActiveTab('sketch')}
-              className={`flex items-center gap-2 px-6 py-2 text-sm font-black rounded-full transition-all border-2 border-transparent ${activeTab === 'sketch' ? 'bg-pop-blue text-white shadow-pop' : 'bg-white text-gray-400 hover:bg-white/80'}`}
+              className={`flex items-center gap-2 px-4 py-2 text-xs font-black rounded-full transition-all border-2 border-transparent ${activeTab === 'sketch' ? 'bg-[#8D6E63] text-white shadow-pop' : 'bg-white text-gray-400 hover:bg-white/80'}`}
+            >
+              <FileText className="w-4 h-4" />
+              スケッチ
+            </button>
+
+            {/* Art Tab (Locked if !unlocked) */}
+            <button
+              onClick={() => setActiveTab('art')}
+              // disabled={isLocked} // DISABLED for testing
+              className={`flex items-center gap-2 px-4 py-2 text-xs font-black rounded-full transition-all border-2 border-transparent ${activeTab === 'art'
+                ? 'bg-pop-blue text-white shadow-pop'
+                : 'bg-white text-gray-400 hover:bg-white/80'
+                }`}
             >
               <ImageIcon className="w-4 h-4" />
-              記録写真
+              観測記録
             </button>
+
+            {/* Real Tab (Only if exists and unlocked) */}
+            {creature.realImageUrl && (
+              <button
+                onClick={() => setActiveTab('real')}
+                // disabled={isLocked} // DISABLED for testing
+                className={`flex items-center gap-2 px-4 py-2 text-xs font-black rounded-full transition-all border-2 border-transparent ${activeTab === 'real'
+                  ? 'bg-pop-pink text-white shadow-pop'
+                  : 'bg-white text-gray-400 hover:bg-white/80'
+                  }`}
+              >
+                <div className="w-4 h-4 border-2 border-current rounded-full flex items-center justify-center">
+                  <div className="w-2 h-2 bg-current rounded-full"></div>
+                </div>
+                実写
+              </button>
+            )}
+
+            {/* Video Tab (Placeholder) */}
             <button
-              onClick={() => setActiveTab('observation')}
-              className={`flex items-center gap-2 px-6 py-2 text-sm font-black rounded-full transition-all border-2 border-transparent ${activeTab === 'observation' ? 'bg-pop-green text-white shadow-pop' : 'bg-white text-gray-400 hover:bg-white/80'}`}
+              onClick={() => { }}
+              disabled={true}
+              className="flex items-center gap-2 px-4 py-2 text-xs font-black rounded-full transition-all border-2 border-transparent bg-gray-100 text-gray-300 cursor-not-allowed"
             >
               <Play className="w-4 h-4" />
-              観測映像
+              映像(未)
             </button>
           </div>
         </div>

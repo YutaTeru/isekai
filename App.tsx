@@ -7,6 +7,7 @@ import CreatureDetailModal from './components/CreatureDetailModal';
 import BottomNav from './components/BottomNav';
 import Prologue from './components/Prologue';
 import GameMap from './components/GameMap';
+import RealisticBook from './components/RealisticBook';
 import DPad, { Direction } from './components/DPad';
 
 // --- DATA DEFINITIONS ---
@@ -143,6 +144,7 @@ function App() {
   const [foundItem, setFoundItem] = useState<Item | null>(null);
   const [inventory, setInventory] = useState<Item[]>([]);
   const [showInventory, setShowInventory] = useState(false);
+  const [showBook, setShowBook] = useState(false);
 
   const [scrolled, setScrolled] = useState(false);
 
@@ -235,11 +237,12 @@ function App() {
   };
 
   const handleCreatureClick = (creature: Creature) => {
-    if (!discoveredIds.includes(creature.id)) return;
+    // 未発見でもスケッチがあれば閲覧可能
+    if (!discoveredIds.includes(creature.id) && !creature.sketchUrl) return;
     setSelectedCreature(creature);
   };
 
-  const discoveryRate = Math.round((discoveredIds.length / CREATURES.length) * 100);
+  const discoveryRate = Math.round((discoveredIds.length / 50) * 100); // 50種ベース
 
   // --- BUDDY & INVENTORY LOGIC ---
 
@@ -475,6 +478,15 @@ function App() {
       }}
     >
 
+      {/* REALISTIC BOOK OVERLAY */}
+      {showBook && (
+        <RealisticBook
+          creatures={CREATURES}
+          discoveredIds={discoveredIds}
+          onClose={() => setShowBook(false)}
+        />
+      )}
+
       {/* Header */}
       <header
         className={`sticky top-0 z-30 transition-all duration-300 ${scrolled
@@ -666,24 +678,55 @@ function App() {
                 </div>
               </button>
             </div>
+
+            {/* Book Trigger on Desk (Fixed Position) */}
+            <div className="fixed bottom-8 right-8 z-40 transition-transform hover:scale-105 active:scale-95 cursor-pointer animate-in fade-in slide-in-from-bottom-8 duration-700 delay-300">
+              <button
+                onClick={() => setShowBook(true)}
+                className="relative group"
+                title="図鑑を開く"
+              >
+                <div className="absolute -inset-4 bg-white/20 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                <img
+                  src="/image/book_icon.png"
+                  alt="図鑑"
+                  className="w-40 h-auto drop-shadow-2xl rotate-[-5deg] group-hover:rotate-0 transition-transform duration-300"
+                />
+                <div className="absolute -top-2 -right-2 bg-pop-red text-white text-xs font-black px-2 py-1 rounded-full shadow-md animate-bounce">
+                  CHECK!
+                </div>
+              </button>
+            </div>
           </div>
         )}
 
         {/* === GALLERY TAB === */}
         {currentTab === 'gallery' && (
           <div className="animate-in fade-in slide-in-from-right-4 duration-300">
-            {/* Search Bar */}
-            <div className="relative mb-6">
-              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                <Search className="h-6 w-6 text-pop-blue" />
+            {/* Search Bar & Book Toggle */}
+            <div className="flex gap-3 mb-6 items-center">
+              <div className="relative flex-1">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <Search className="h-6 w-6 text-pop-blue" />
+                </div>
+                <input
+                  type="text"
+                  placeholder="生物名で検索..."
+                  className="w-full pl-12 pr-4 py-4 bg-white border-4 border-pastel-blue rounded-full text-kids-text placeholder-gray-400 focus:outline-none focus:border-pop-blue transition-all shadow-sm font-bold text-lg"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
               </div>
-              <input
-                type="text"
-                placeholder="生物名で検索..."
-                className="w-full pl-12 pr-4 py-4 bg-white border-4 border-pastel-blue rounded-full text-kids-text placeholder-gray-400 focus:outline-none focus:border-pop-blue transition-all shadow-sm font-bold text-lg"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
+
+              {/* Book View Toggle Button */}
+              <button
+                onClick={() => setShowBook(true)}
+                className="w-16 h-16 bg-[#8D6E63] rounded-2xl border-4 border-[#5D4037] shadow-pop hover:scale-105 active:scale-95 transition-all flex items-center justify-center group overflow-hidden relative shrink-0"
+                title="図鑑モードを開く"
+              >
+                <div className="absolute inset-0 bg-gradient-to-tr from-black/20 to-transparent"></div>
+                <img src="/image/book_icon.png" alt="Book" className="w-12 h-12 object-contain drop-shadow-md group-hover:rotate-6 transition-transform" />
+              </button>
             </div>
 
             {/* Category Filter */}
@@ -778,7 +821,8 @@ function App() {
 
       {/* === SEARCH OVERLAY (Scanning / Aiming / Result) === */}
       {(searchPhase === 'scanning' || searchPhase === 'aiming' || searchPhase === 'result') && (
-        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center animate-in fade-in duration-300 font-maru overflow-hidden">
+        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center font-maru overflow-hidden">
+          {/* REMOVED animate-in fade-in to prevent white flash */}
 
           {/* BACKGROUND LAYER (Persists for Aiming and Result) */}
           {(searchPhase === 'aiming' || searchPhase === 'result') && activeArea && (
@@ -793,7 +837,8 @@ function App() {
           )}
 
           {/* Dark Backdrop (Lighter for Aiming/Result to show context) */}
-          <div className={`absolute inset-0 transition-colors duration-500 z-0 ${(searchPhase === 'aiming' || searchPhase === 'result') ? 'bg-black/20' : 'bg-black/90 backdrop-blur-md'}`}></div>
+          {/* Ensure immediate black background for scanning */}
+          <div className={`absolute inset-0 transition-colors duration-500 z-0 ${(searchPhase === 'aiming' || searchPhase === 'result') ? 'bg-black/20' : 'bg-black'}`}></div>
 
 
           {/* 1. SCANNING PHASE */}
@@ -935,10 +980,8 @@ function App() {
         userName={userName}
         onSetBuddy={handleSetBuddy}
         buddyId={buddy ? buddy.id : null}
-      />
-
-      {/* Inventory Modal */}
-      {showInventory && (
+        isLocked={selectedCreature ? !discoveredIds.includes(selectedCreature.id) : false}
+      />{showInventory && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in text-left">
           <div className="bg-white w-full max-w-md rounded-3xl p-6 shadow-2xl animate-in zoom-in-95 border-4 border-white relative font-maru">
             <button
