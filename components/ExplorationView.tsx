@@ -336,7 +336,7 @@ const ExplorationView: React.FC<ExplorationViewProps> = ({
                 </button>
             </div>
 
-            <div className="fixed bottom-4 right-4 z-40 transition-transform hover:scale-105 active:scale-95 cursor-pointer animate-in fade-in slide-in-from-bottom-8 duration-700 delay-300">
+            <div className="fixed bottom-28 right-4 z-40 transition-transform hover:scale-105 active:scale-95 cursor-pointer animate-in fade-in slide-in-from-bottom-8 duration-700 delay-300">
                 <div className="relative group">
                     <button
                         onClick={() => setShowBook(true)}

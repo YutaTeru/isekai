@@ -320,18 +320,23 @@ const AmidakujiView: React.FC<AmidakujiViewProps> = ({ areaId, onComplete, onClo
                         </div>
                     </div>
 
-                    {/* Character Layer - z-30 (Above Fog) */}
+                    {/* Character Layer (Animated) - z-30 (Above Fog) */}
+                    {isWalking && charPos && (
+                        <div
+                            className="absolute z-30 w-12 h-12 -ml-6 -mt-6 transition-none"
+                            style={{
+                                left: `${charPos.x}%`,
+                                top: `${charPos.y}%`
+                            }}
+                        >
+                            <div className="w-full h-full rounded-full bg-white border-4 border-pop-blue shadow-lg overflow-hidden flex items-center justify-center">
+                                <img src="/image/character_boy.png" alt="Player" className="w-full h-full object-cover scale-110 translate-y-1" />
+                            </div>
+                        </div>
+                    )}
+
                     <svg className="absolute inset-0 w-full h-full pointer-events-none z-30" overflow="visible">
-                        {isWalking && charPos && (
-                            <g style={{ transform: `translate(${charPos.x}%, ${charPos.y}%)` }}>
-                                {/* Walking Character */}
-                                <foreignObject x="-24" y="-24" width="48" height="48">
-                                    <div className="w-12 h-12 rounded-full bg-white border-4 border-pop-blue shadow-lg overflow-hidden flex items-center justify-center">
-                                        <img src="/image/character_boy.png" alt="Player" className="w-full h-full object-cover scale-110 translate-y-1" />
-                                    </div>
-                                </foreignObject>
-                            </g>
-                        )}
+                        {/* Removed SVG-based foreignObject character to fix coordinate sync issues */}
                     </svg>
                 </div>
 
