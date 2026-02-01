@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { UncleMessage } from '../data/uncleMessages';
-import { Smartphone, ChevronLeft, Send } from 'lucide-react';
+import { Smartphone, ChevronLeft, Send, X } from 'lucide-react';
 
 interface UncleMessageModalProps {
     message: UncleMessage | null;
@@ -9,6 +9,8 @@ interface UncleMessageModalProps {
 }
 
 const UncleMessageModal: React.FC<UncleMessageModalProps> = ({ message, onClose, userName }) => {
+    const [isImageExpanded, setIsImageExpanded] = useState(false);
+
     if (!message) return null;
 
     // Replace placeholder with actual username
@@ -64,7 +66,12 @@ const UncleMessageModal: React.FC<UncleMessageModalProps> = ({ message, onClose,
                         {message.image && (
                             <div className="flex flex-col gap-1 w-full max-w-[85%] mb-4">
                                 <div className="bg-white rounded-tr-2xl rounded-bl-2xl rounded-br-2xl p-2 shadow-sm border border-gray-100 relative overflow-hidden">
-                                    <img src={message.image} alt="Attached photo" className="w-full h-auto rounded-xl" />
+                                    <img
+                                        src={message.image}
+                                        alt="Attached photo"
+                                        className="w-full h-auto rounded-xl cursor-pointer hover:opacity-90 transition-opacity"
+                                        onClick={() => setIsImageExpanded(true)}
+                                    />
                                 </div>
                                 <span className="text-[10px] text-gray-500 ml-1">既読</span>
                             </div>
@@ -89,6 +96,29 @@ const UncleMessageModal: React.FC<UncleMessageModalProps> = ({ message, onClose,
                 {/* Home Bar */}
                 <div className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1/3 h-1 bg-gray-300 rounded-full"></div>
             </div>
+
+            {/* Lightbox Overlay */}
+            {isImageExpanded && message.image && (
+                <div
+                    className="fixed inset-0 z-[200] bg-black/95 flex items-center justify-center p-4 animate-in fade-in duration-200"
+                    onClick={() => setIsImageExpanded(false)}
+                >
+                    <img
+                        src={message.image}
+                        alt="Full size view"
+                        className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
+                    />
+                    <button
+                        className="absolute top-4 right-4 p-2 bg-white/10 hover:bg-white/20 rounded-full text-white transition-colors"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            setIsImageExpanded(false);
+                        }}
+                    >
+                        <X className="w-6 h-6" />
+                    </button>
+                </div>
+            )}
         </div>
     );
 };
