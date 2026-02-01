@@ -34,19 +34,8 @@ const IntroStoryModal: React.FC<IntroStoryModalProps> = ({ onComplete }) => {
         >
             <div className={`relative w-full h-full max-w-lg mx-auto flex flex-col transition-opacity duration-1000 ${fadeIn ? 'opacity-100' : 'opacity-0'}`}>
 
-                {/* Image Area (Only meaningful content on last step) */}
-                <div className="flex-1 relative overflow-hidden transition-all duration-1000">
-                    {step >= 2 && (
-                        <div className="absolute inset-0 animate-in fade-in duration-1000">
-                            <img
-                                src="/promo_scene_01_randoseru_scan.png"
-                                alt="Intro Scene"
-                                className="w-full h-full object-cover"
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
-                        </div>
-                    )}
-                </div>
+                {/* Image Area - Removed as per user request */}
+                <div className="hidden"></div>
 
                 {/* Text Area */}
                 <div className="bg-black p-8 pb-20 text-white relative min-h-[40vh] flex flex-col justify-center">
