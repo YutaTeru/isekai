@@ -9,6 +9,7 @@ import Prologue from './components/Prologue';
 import RealisticBook from './components/RealisticBook';
 import TitleScreen from './components/TitleScreen';
 import UncleMessageModal from './components/UncleMessageModal';
+import IntroStoryModal from './components/IntroStoryModal';
 
 // Views
 import ExplorationView from './components/ExplorationView';
@@ -36,7 +37,8 @@ const getTimeConfig = (time: TimeOfDay) => {
 
 function App() {
   const [showTitle, setShowTitle] = useState(true);
-  const [showPrologue, setShowPrologue] = useState(true);
+  const [showIntroStory, setShowIntroStory] = useState(false);
+  const [showPrologue, setShowPrologue] = useState(false);
   const [userName, setUserName] = useState('調査員');
   const [currentTab, setCurrentTab] = useState('explore');
   const [selectedCreature, setSelectedCreature] = useState<Creature | null>(null);
@@ -269,7 +271,17 @@ function App() {
 
   // --- RENDER ---
   if (showTitle) {
-    return <TitleScreen onStart={() => setShowTitle(false)} />;
+    return <TitleScreen onStart={() => {
+      setShowTitle(false);
+      setShowIntroStory(true);
+    }} />;
+  }
+
+  if (showIntroStory) {
+    return <IntroStoryModal onComplete={() => {
+      setShowIntroStory(false);
+      setShowPrologue(true);
+    }} />;
   }
 
   if (showPrologue) {
