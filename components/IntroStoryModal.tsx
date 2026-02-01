@@ -38,7 +38,7 @@ const IntroStoryModal: React.FC<IntroStoryModalProps> = ({ onComplete }) => {
                 <div className="hidden"></div>
 
                 {/* Text Area */}
-                <div className="bg-black p-8 pb-20 text-white relative min-h-[40vh] flex flex-col justify-center">
+                <div className="bg-black p-8 pb-20 text-white relative min-h-screen flex flex-col justify-center items-center">
                     <p className="text-lg md:text-xl leading-relaxed whitespace-pre-wrap animate-in fade-in slide-in-from-bottom-4 duration-500" key={step}>
                         {stories[step]}
                     </p>

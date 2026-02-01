@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { UserCircle2, Sun, Moon, Sunrise, Sunset } from 'lucide-react';
+import { UserCircle2, Sun, Moon, Sunrise, Sunset, Book } from 'lucide-react';
 import { CREATURES, APP_NAME, ITEMS, SEARCH_AREAS } from './constants';
 import { Creature, TimeOfDay, Item, SearchArea, NewsData } from './types';
 import { UNCLE_MESSAGES, UncleMessage } from './data/uncleMessages';
@@ -325,9 +325,18 @@ function App() {
               <img src="/char/explorer.png" alt="Explorer" className="w-full h-full object-cover transform scale-110" />
             </div>
             <div>
-              <h1 className="font-black text-xl text-kids-text tracking-wide drop-shadow-sm">
-                {APP_NAME}
-              </h1>
+              <div className="flex items-center gap-2">
+                <h1 className="font-black text-xl text-kids-text tracking-wide drop-shadow-sm">
+                  {APP_NAME}
+                </h1>
+                <button
+                  onClick={() => setShowBook(true)}
+                  className="bg-[#3E2723] p-1.5 rounded-lg border-2 border-[#5D4037] text-white shadow-sm active:scale-95 transition-transform hover:bg-[#5D4037]"
+                  title="図鑑を開く"
+                >
+                  <Book className="w-5 h-5" />
+                </button>
+              </div>
               <div className="flex items-center gap-3">
                 <div className="flex items-center gap-1 text-xs font-bold text-gray-500">
                   <span className="bg-white px-2 py-0.5 rounded-full shadow-sm">観測進捗</span>

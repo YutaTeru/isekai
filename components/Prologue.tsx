@@ -112,8 +112,8 @@ const Prologue: React.FC<PrologueProps> = ({ onComplete }) => {
                                 </button>
                             ) : (
                                 <div className="text-right">
-                                    <div className="font-bold text-xs text-gray-500">叔父さん</div>
-                                    <img src="/char/professor_v2.png" className="w-16 h-16 rounded-full border-2 border-gray-300 inline-block shadow-sm" />
+                                    <div className="font-bold text-xs text-gray-500 mb-1">叔父さん</div>
+                                    <img src="/char/professor_v2.png" className="w-16 h-16 rounded-full border-2 border-gray-300 inline-block shadow-sm object-cover flex-shrink-0" />
                                 </div>
                             )}
                         </div>

@@ -336,19 +336,7 @@ const ExplorationView: React.FC<ExplorationViewProps> = ({
                 </button>
             </div>
 
-            <div className="fixed bottom-28 right-4 z-40 transition-transform hover:scale-105 active:scale-95 cursor-pointer animate-in fade-in slide-in-from-bottom-8 duration-700 delay-300">
-                <div className="relative group">
-                    <button
-                        onClick={() => setShowBook(true)}
-                        className="relative w-48 h-32 overflow-hidden rounded-xl shadow-2xl border-4 border-[#5D4037] bg-[#3E2723]"
-                        title="図鑑を開く"
-                    >
-                        <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors z-10"></div>
-                        <img src="/image/home_book_trigger.png" alt="図鑑" className="w-full h-full object-cover transform scale-125 group-hover:scale-135 transition-transform duration-500" />
-                    </button>
-                    <div className="absolute -top-3 -right-3 bg-pop-red text-white text-xs font-black px-3 py-1 rounded-full shadow-lg animate-bounce z-50 border-2 border-white pointer-events-none">CHECK!</div>
-                </div>
-            </div>
+
         </div>
     );
 };
