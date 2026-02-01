@@ -451,7 +451,7 @@ function App() {
         <div className="flex flex-col gap-1">
           <div className="flex gap-1">
             <button onClick={() => { localStorage.removeItem('uncle_message_last_shown_milestone'); alert('Reset Uncle Message History'); }} className="bg-red-500 text-white text-xs px-2 py-1 rounded">Reset Msg</button>
-            <button onClick={() => setDiscoveredIds([])} className="bg-red-500 text-white text-xs px-2 py-1 rounded">Reset Dex</button>
+            <button onClick={() => { setDiscoveredIds([]); alert('Reset Discovered IDs'); }} className="bg-red-500 text-white text-xs px-2 py-1 rounded">Reset Dex</button>
           </div>
           <div className="flex gap-1 flex-wrap w-32">
             {[10, 20, 30, 40, 50].map(num => (
@@ -461,6 +461,7 @@ function App() {
                   // Generate dummy IDs to match count
                   const dummyIds = Array.from({ length: num }, (_, i) => `debug_${i}`);
                   setDiscoveredIds(dummyIds);
+                  alert(`Set debug count to ${num}`);
                 }}
                 className="bg-blue-500 text-white text-xs px-2 py-1 rounded hover:bg-blue-600"
               >
