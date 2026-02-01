@@ -16,6 +16,41 @@ const Prologue: React.FC<PrologueProps> = ({ onComplete }) => {
         setTimeout(() => setFadeIn(true), 500);
     }, []);
 
+    const [letterPage, setLetterPage] = useState(0);
+
+    const letterContent = [
+        // Page 1
+        <div key="page1" className="space-y-3 animate-in fade-in duration-300">
+            <p>
+                <span className="font-bold text-lg">相棒へ</span>
+            </p>
+            <p>
+                この手紙が届いたということは、転送実験は成功だ。<br />
+                実はおじさん、今『ここじゃない世界（パラレルワールド）』に来ている。
+            </p>
+            <p>
+                こっちはすごいぞ。空が紫だったり、見たこともない植物が生えていたり……<br />
+                まさに、僕らが夢見ていた冒険の世界そのものだ！
+            </p>
+        </div>,
+        // Page 2
+        <div key="page2" className="space-y-3 animate-in fade-in duration-300">
+            <p>
+                でも、一つ問題が起きた。<br />
+                こっちの世界の「生き物」たちが、どうやらそっちの地球へ迷い込んでしまったらしいんだ。
+                放っておくと、世界のバランスが崩れてしまうかもしれない。
+            </p>
+            <p>
+                そこで頼みがある。同封した「パラレル・カム」を使って、<br />
+                紛れ込んだ<span className="font-bold text-pop-red bg-yellow-100 px-1">「異世界の生物」</span>を見つけ出し、こちらの世界へ戻す手助けをしてほしい。
+            </p>
+            <p>
+                準備ができたら、隣のカードに名前を書いてくれ。<br />
+                僕と君だけの、トップシークレット・ミッションだ！
+            </p>
+        </div>
+    ];
+
     const handleRegister = () => {
         if (!userName.trim()) return;
         setShowStamp(true);
@@ -40,46 +75,47 @@ const Prologue: React.FC<PrologueProps> = ({ onComplete }) => {
                     className={`
                 relative bg-[#FDFBF7] shadow-2xl p-8 rounded-sm transform rotate-[-2deg] transition-all duration-500
                 ${isLetterExpanded ? 'z-50 scale-110 rotate-0' : 'hover:-translate-y-2 cursor-zoom-in'}
-                w-[90%] md:w-[60%] max-w-lg
+                w-[90%] md:w-[60%] max-w-lg min-h-[400px] flex flex-col
             `}
-                    onClick={() => setIsLetterExpanded(!isLetterExpanded)}
+                    onClick={() => !isLetterExpanded && setIsLetterExpanded(true)}
                 >
                     <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/aged-paper.png')] opacity-10 pointer-events-none"></div>
 
                     {/* Letter Content */}
-                    <div className="relative text-kids-text leading-relaxed space-y-4">
+                    <div className="relative text-kids-text leading-relaxed space-y-4 flex-1">
                         <div className="flex justify-between items-start border-b-2 border-gray-200 pb-2 mb-4">
                             <h2 className="text-xl font-black text-[#5D4037]">極秘指令書</h2>
                             <Stamp className="w-8 h-8 text-red-800 opacity-50 rotate-12" />
                         </div>
 
-                        <div className="text-sm md:text-base space-y-3 font-medium">
-                            <p>
-                                <span className="font-bold text-lg">相棒へ</span>
-                            </p>
-                            <p>
-                                この手紙が届いたということは、転送実験は成功だ。<br />
-                                実はおじさん、今『ここじゃない世界』に来ている。
-                            </p>
-                            <p>
-                                そこで頼みがある。同封した「パラレル・カム」を使って、<br />
-                                そっちの世界に紛れ込んだ<span className="font-bold text-pop-red bg-yellow-100 px-1">「異世界の生物」</span>を見つけてほしいんだ。
-                            </p>
-                            <p className="p-3 bg-gray-100/50 rounded-lg border-l-4 border-[#5D4037] text-xs md:text-sm italic">
-                                ※見つけた生物は、自動的にリンクした図鑑に記録される。<br />
-                                危険はない……はずだ。
-                            </p>
-                            <p>
-                                準備ができたら、隣のカードに名前を書いてくれ。<br />
-                                僕と君だけの、トップシークレット・ミッションだ！
-                            </p>
+                        <div className="text-sm md:text-base font-medium min-h-[200px]">
+                            {letterContent[letterPage]}
                         </div>
 
-                        <div className="mt-6 flex items-end justify-end gap-3">
-                            <div className="text-right">
-                                <div className="font-bold text-xs text-gray-500">パラレル生物博士</div>
-                                <img src="/char/professor_v2.png" className="w-16 h-16 rounded-full border-2 border-gray-300 inline-block shadow-sm" />
-                            </div>
+                        {/* Pagination Controls */}
+                        <div className="flex justify-between items-center mt-4 border-t border-gray-100 pt-2">
+                            {letterPage > 0 ? (
+                                <button
+                                    onClick={(e) => { e.stopPropagation(); setLetterPage(letterPage - 1); }}
+                                    className="text-pop-blue font-bold text-sm hover:underline flex items-center gap-1"
+                                >
+                                    ← 前のページ
+                                </button>
+                            ) : <div></div>}
+
+                            {letterPage < letterContent.length - 1 ? (
+                                <button
+                                    onClick={(e) => { e.stopPropagation(); setLetterPage(letterPage + 1); }}
+                                    className="text-pop-blue font-bold text-sm hover:underline flex items-center gap-1 animate-pulse"
+                                >
+                                    次のページ →
+                                </button>
+                            ) : (
+                                <div className="text-right">
+                                    <div className="font-bold text-xs text-gray-500">パラレル生物博士</div>
+                                    <img src="/char/professor_v2.png" className="w-16 h-16 rounded-full border-2 border-gray-300 inline-block shadow-sm" />
+                                </div>
+                            )}
                         </div>
                     </div>
 
