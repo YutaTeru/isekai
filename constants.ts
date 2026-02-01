@@ -1,4 +1,83 @@
-import { Creature, CreatureType, TimeOfDay, Item } from './types';
+import { Creature, CreatureType, TimeOfDay, Item, SearchArea, SubAreaSpot } from './types';
+import { Trees, Footprints, Waves, Home, MapPin, Sun, Leaf, Cloud, Sparkles } from 'lucide-react';
+
+export const SEARCH_AREAS: SearchArea[] = [
+  {
+    id: 'park',
+    label: '公園エリア',
+    type: CreatureType.Park,
+    icon: Trees,
+    color: 'bg-[#C8E6C9] text-[#2E7D32] border-[#4CAF50]',
+    description: '多くの生物が観測される基本エリア。遊具周辺は要チェック。',
+    bgImage: '/bg/park.png',
+    mapImage: '/bg/park_map_highres.png',
+    fpsImage: '/bg/park_fps.png'
+  },
+  {
+    id: 'garden',
+    label: '庭・路地裏',
+    type: CreatureType.Garden,
+    icon: Footprints,
+    color: 'bg-[#FFECB3] text-[#F57F17] border-[#FFC107]',
+    description: '物陰に潜む小型生物が多い。隙間や影を調査せよ。',
+    bgImage: '/bg/garden.png',
+    mapImage: '/bg/garden_map_highres.png',
+    fpsImage: '/bg/garden_fps.png'
+  },
+  {
+    id: 'water',
+    label: '水辺・川',
+    type: CreatureType.Water,
+    icon: Waves,
+    color: 'bg-[#E1F5FE] text-[#0277BD] border-[#29B6F6]',
+    description: '水棲生物の生息域。水面の波紋や湿った場所を探れ。',
+    bgImage: '/bg/water.png',
+    mapImage: '/bg/water_map_highres.png',
+    fpsImage: '/bg/water_fps.png'
+  },
+  {
+    id: 'house',
+    label: '屋内・家',
+    type: CreatureType.House,
+    icon: Home,
+    color: 'bg-[#E1BEE7] text-[#7B1FA2] border-[#9C27B0]',
+    description: '人工物に擬態する生物が生息。家具や家電製品の裏側など。',
+    bgImage: '/bg/house.png',
+    mapImage: '/bg/house_map_highres.png',
+    fpsImage: '/bg/house_fps.png'
+  },
+];
+
+export const AREA_SPOTS: Record<string, SubAreaSpot[]> = {
+  park: [
+    { id: 'slide', label: '滑り台', x: 25, y: 35, icon: MapPin, activeTimes: [TimeOfDay.Morning, TimeOfDay.Day] },
+    { id: 'sandbox', label: '砂場', x: 75, y: 65, icon: MapPin, activeTimes: [TimeOfDay.Morning, TimeOfDay.Day, TimeOfDay.Sunset] },
+    { id: 'lamp', label: '街灯', x: 85, y: 25, icon: Sun, activeTimes: [TimeOfDay.Sunset, TimeOfDay.Night] },
+    { id: 'bush', label: '茂み', x: 20, y: 80, icon: Leaf, activeTimes: [TimeOfDay.Morning, TimeOfDay.Day, TimeOfDay.Night] },
+    { id: 'bench_under', label: 'ベンチの下', x: 60, y: 60, icon: Sparkles, activeTimes: [TimeOfDay.Any], type: 'item', itemId: 'item_stone' },
+  ],
+  garden: [
+    { id: 'flowerpot', label: '植木鉢', x: 30, y: 70, icon: Leaf, activeTimes: [TimeOfDay.Morning, TimeOfDay.Day] },
+    { id: 'wall', label: 'ブロック塀', x: 50, y: 40, icon: MapPin, activeTimes: [TimeOfDay.Day, TimeOfDay.Sunset] },
+    { id: 'shadow', label: '建物の影', x: 80, y: 80, icon: Footprints, activeTimes: [TimeOfDay.Sunset, TimeOfDay.Night] },
+    { id: 'acunit', label: '室外機', x: 20, y: 20, icon: MapPin, activeTimes: [TimeOfDay.Night, TimeOfDay.Morning] },
+  ],
+  water: [
+    { id: 'lilypad', label: '蓮の葉', x: 20, y: 70, icon: Leaf, activeTimes: [TimeOfDay.Morning, TimeOfDay.Day] },
+    { id: 'waterfall', label: '小さな滝', x: 50, y: 20, icon: Waves, activeTimes: [TimeOfDay.Day, TimeOfDay.Sunset] },
+    { id: 'bridge', label: '木の橋', x: 80, y: 40, icon: MapPin, activeTimes: [TimeOfDay.Sunset, TimeOfDay.Night] },
+    { id: 'shore', label: '岸辺', x: 30, y: 40, icon: Footprints, activeTimes: [TimeOfDay.Morning, TimeOfDay.Day] },
+  ],
+  house: [
+    { id: 'bookshelf', label: '本棚', x: 20, y: 30, icon: MapPin, activeTimes: [TimeOfDay.Night, TimeOfDay.Any] },
+    { id: 'router', label: 'Wi-Fiルーター', x: 80, y: 70, icon: Sun, activeTimes: [TimeOfDay.Any] },
+    { id: 'sofa', label: 'ソファー', x: 40, y: 80, icon: MapPin, activeTimes: [TimeOfDay.Day, TimeOfDay.Sunset] },
+    { id: 'window', label: '窓際', x: 70, y: 20, icon: Sun, activeTimes: [TimeOfDay.Morning] },
+  ],
+  mystery: [
+    { id: 'fog', label: '濃霧地帯', x: 50, y: 50, icon: Cloud, activeTimes: [TimeOfDay.Morning] },
+  ]
+};
 
 export const CREATURES: Creature[] = [
   {
@@ -17,7 +96,9 @@ export const CREATURES: Creature[] = [
       '雨の日は体が小さくなる。',
       '怒るとキャラメル化して少し硬くなる。',
       '実はザラメが好物。'
-    ]
+    ],
+    evolutionLevel: 1,
+    evolvesTo: '001_evo'
   },
   {
     id: '002',
@@ -35,7 +116,8 @@ export const CREATURES: Creature[] = [
       '切れると交換が必要（脱皮）。',
       'LED型も最近発見されたらしい。',
       '口癖は「ピカッ」。'
-    ]
+    ],
+    evolutionLevel: 1
   },
   {
     id: '003',
@@ -53,7 +135,8 @@ export const CREATURES: Creature[] = [
       '実は泳げない。',
       '肉球はプニプニというよりポヨポヨ。',
       '魚より水草が好き。'
-    ]
+    ],
+    evolutionLevel: 1
   },
   {
     id: '004',
@@ -71,7 +154,8 @@ export const CREATURES: Creature[] = [
       'ミステリー小説を食べると体色が黒くなる。',
       '電子書籍は味がしなくて嫌い。',
       '辞書を枕にするのがトレンド。'
-    ]
+    ],
+    evolutionLevel: 1
   },
   {
     id: '005',
@@ -89,7 +173,8 @@ export const CREATURES: Creature[] = [
       '5GHz帯の方が居心地が良いらしい。',
       'パスワードを変えると混乱する。',
       'ストリーミング動画を横から覗いている。'
-    ]
+    ],
+    evolutionLevel: 1
   },
   {
     id: '006',
@@ -107,7 +192,8 @@ export const CREATURES: Creature[] = [
       '本体は影の方。',
       '真夜中は逆に姿が見えなくなる。',
       '日向ぼっこは苦手。'
-    ]
+    ],
+    evolutionLevel: 1
   },
   {
     id: '007',
@@ -125,7 +211,8 @@ export const CREATURES: Creature[] = [
       '歩くたびにゴリゴリ音がする。',
       'マンホールのふたに恋をすることがある。',
       '夏場は熱くなりすぎて機嫌が悪い。'
-    ]
+    ],
+    evolutionLevel: 1
   },
   {
     id: '008',
@@ -143,7 +230,8 @@ export const CREATURES: Creature[] = [
       '泡は触れるとパチンと弾けて音が鳴る。',
       '悲しい過去は黒い泡になる。',
       '陸上でも泡の中なら活動できる。'
-    ]
+    ],
+    evolutionLevel: 1
   },
   {
     id: '009',
@@ -161,7 +249,8 @@ export const CREATURES: Creature[] = [
       '巣にかかるのは霧だけ。',
       '太陽が出ると蒸発して消える。',
       '実は高所恐怖症。'
-    ]
+    ],
+    evolutionLevel: 1
   },
   {
     id: '010',
@@ -181,7 +270,65 @@ export const CREATURES: Creature[] = [
       '雨に濡れるとふやけて動きが鈍る。',
       '紅生姜のようなアクセサリーを好む。',
       '熱い場所が好き。'
-    ]
+    ],
+    evolutionLevel: 1
+  },
+  {
+    id: '011',
+    name: 'ブロッコリー・インコ',
+    latinName: 'Psittacus Brassica',
+    type: CreatureType.Garden,
+    activeTime: [TimeOfDay.Day, TimeOfDay.Morning],
+    imageUrl: '/creatures/broccoli_bird.jpg',
+    shortDesc: '野菜畑に擬態する鳥。羽毛がブロッコリーの房のように発達している。マヨネーズを見ると興奮してさえずる。',
+    dangerLevel: 1,
+    syncRate: 0,
+    role: 'none',
+    perk: '野菜の鮮度を見分ける',
+    trivia: [
+      '実は野菜嫌い（虫を食べる）。',
+      '茹でられる夢を見てうなされることがある。',
+      'ドレッシングの匂いが好き。'
+    ],
+    evolutionLevel: 1
+  },
+  {
+    id: '012',
+    name: 'エンピツ・ツムリ',
+    latinName: 'Cochlea Graphit',
+    type: CreatureType.House,
+    activeTime: [TimeOfDay.Any],
+    imageUrl: '/creatures/pencil_snail.jpg',
+    shortDesc: '殻が鉛筆削りの削りカスで構成されているカタツムリ。這った跡に黒い線が残るため、自分の居場所を隠せない。',
+    dangerLevel: 1,
+    syncRate: 0,
+    role: 'none',
+    perk: '地図の未完成部分を補完する',
+    trivia: [
+      '芯の硬さはHB。',
+      '消しゴムが天敵。',
+      '興奮すると芯が折れる。'
+    ],
+    evolutionLevel: 1
+  },
+  {
+    id: '013',
+    name: 'フルーツ・クラゲ',
+    latinName: 'Medusa Fructus',
+    type: CreatureType.Water,
+    activeTime: [TimeOfDay.Day],
+    imageUrl: '/creatures/fruit_jelly.png',
+    shortDesc: '体内に新鮮なフルーツを取り込んでいる透明なクラゲ。ゼリーのような弾力があり、甘い香りが漂っている。',
+    dangerLevel: 2,
+    syncRate: 0,
+    role: 'none',
+    perk: '疲労回復（甘いもの補給）',
+    trivia: [
+      '冷やすと動きが鈍くなる。',
+      '季節によって中身のフルーツが変わる。',
+      '炭酸水に入れるとシュワシュワする。'
+    ],
+    evolutionLevel: 1
   },
   // --- PLACEHOLDERS TO REACH 50 ---
   ...Array.from({ length: 40 }, (_, i) => ({
@@ -196,7 +343,8 @@ export const CREATURES: Creature[] = [
     syncRate: 0,
     role: 'none' as 'none',
     perk: '???',
-    trivia: []
+    trivia: [],
+    evolutionLevel: 1
   }))
 ];
 

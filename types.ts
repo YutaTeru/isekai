@@ -33,6 +33,9 @@ export interface Creature {
   role: 'buddy' | 'none';
   perk: string;
   trivia: string[];
+  // Evolution Ext
+  evolutionLevel: number; // 1 (Basic) -> 2 (Evolved)
+  evolvesTo?: string; // ID of the next form
 }
 
 export interface NavItem {
@@ -59,6 +62,15 @@ export interface SearchArea {
   fpsImage: string;
 }
 
+export interface MapNode {
+  id: string;
+  x: number; // % coordinates (0-100)
+  y: number; // % coordinates (0-100)
+  type: 'start' | 'junction' | 'waypoint' | 'end';
+  nextNodes: string[]; // Possible next node IDs
+  targetId?: string; // If 'end', what is here? (null, creatureId, itemId)
+}
+
 export interface SubAreaSpot {
   id: string;
   label: string;
@@ -66,6 +78,8 @@ export interface SubAreaSpot {
   y: number; // top position %
   icon: React.ComponentType<any>;
   activeTimes: TimeOfDay[];
+  type?: 'creature' | 'item'; // Default 'creature'
+  itemId?: string; // If type is item
 }
 
 export interface Item {
@@ -79,3 +93,12 @@ export interface Item {
 }
 
 export type SearchPhase = 'idle' | 'walking' | 'scanning' | 'aiming' | 'result';
+
+export interface NewsData {
+  date: string; // YYYY-MM-DD
+  type: 'forecast' | 'trivia' | 'advice' | 'lucky';
+  title: string;
+  content: string;
+  luckyItemId?: string; // If type is lucky
+  bonusAreaId?: string; // If type is forecast (area)
+}
