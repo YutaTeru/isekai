@@ -24,7 +24,7 @@ const IntroStoryModal: React.FC<IntroStoryModalProps> = ({ onComplete }) => {
     const stories = [
         "僕の叔父さんは、ちょっと変わっている。\n親戚の集まりには顔を出さず、\n世界中を旅しては、変な石や干しトカゲを送りつけてくるんだ。",
         "「この世界には、まだ誰も知らない『隙間』があるんだよ」\n\n叔父さんは、子供みたいな顔でそう語っていた。\n周りの大人は笑っていたけれど、僕だけは信じていた。",
-        "そんな叔父さんが、ふらりと姿を消してから数ヶ月。\nある日、学校から帰ると、予感がした。\nランドセルを開ける。そこには……。"
+        "そんな叔父さんが、ふらりと姿を消してから数ヶ月。\nある日、学校から帰ると、予感がした。\nランドセルを開ける。\nそこには……。"
     ];
 
     return (
@@ -39,7 +39,7 @@ const IntroStoryModal: React.FC<IntroStoryModalProps> = ({ onComplete }) => {
 
                 {/* Text Area */}
                 <div className="bg-black p-8 pb-20 text-white relative min-h-screen flex flex-col justify-center items-center">
-                    <p className="text-lg md:text-xl leading-relaxed whitespace-pre-wrap animate-in fade-in slide-in-from-bottom-4 duration-500" key={step}>
+                    <p className="text-2xl md:text-3xl leading-relaxed whitespace-pre-wrap animate-in fade-in slide-in-from-bottom-4 duration-500 font-bold tracking-wide" key={step}>
                         {stories[step]}
                     </p>
 

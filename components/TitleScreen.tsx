@@ -42,12 +42,12 @@ const TitleScreen: React.FC<TitleScreenProps> = ({ onStart }) => {
                         </span>
                     </div>
 
-                    <h1 className="relative">
-                        <span className="block text-6xl md:text-8xl font-black text-transparent bg-clip-text bg-gradient-to-b from-pop-green to-emerald-600 stroke-white drop-shadow-[0_4px_0_rgba(0,0,0,0.2)]"
+                    <h1 className="relative flex flex-col items-center">
+                        <span className="block text-6xl md:text-8xl font-black text-transparent bg-clip-text bg-gradient-to-b from-pop-green to-emerald-600 stroke-white drop-shadow-[0_4px_0_rgba(0,0,0,0.2)] tracking-widest leading-none ml-4"
                             style={{ WebkitTextStroke: "3px white" }}>
                             生き物図鑑！
                         </span>
-                        <span className="block text-4xl md:text-6xl font-black text-pop-pink transform -rotate-2 -mt-2 drop-shadow-md"
+                        <span className="block text-4xl md:text-6xl font-black text-pop-pink transform -rotate-1 -mt-1 drop-shadow-md tracking-widest"
                             style={{ WebkitTextStroke: "2px white" }}>
                             異世界編
                         </span>

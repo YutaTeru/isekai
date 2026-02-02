@@ -12,12 +12,13 @@
   },
   "dependencies": {
     "@google/genai": "^1.37.0",
+    "@remotion/player": "latest",
+    "@remotion/zod-types": "latest",
     "lucide-react": "^0.562.0",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
     "remotion": "latest",
-    "@remotion/player": "latest",
-    "@remotion/zod-types": "latest"
+    "sharp": "^0.34.5"
   },
   "devDependencies": {
     "@remotion/cli": "latest",

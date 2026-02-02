@@ -12,14 +12,17 @@ interface RealisticBookProps {
 
 const RealisticBook: React.FC<RealisticBookProps> = ({ creatures, discoveredIds, onClose }) => {
     // Determine discover status
-    const discoveredCreatures = creatures.filter(c => discoveredIds.includes(c.id));
+    // Use all creatures, displaying outlines/targets for undiscovered ones
+    const displayCreatures = creatures;
+
 
 
     // Page Management
     // Index 1 = Ex Libris (Left) + Title (Right)
     // Index 2+ = Creature Pages
     // Initial state: Open to the FIRST creature page (Index 2) if creatures exist, otherwise Intro (Index 1).
-    const initialPage = discoveredCreatures.length > 0 ? 2 : 1;
+    const initialPage = 2; // Start at first content page
+
 
     const [pageIndex, setPageIndex] = useState(initialPage);
     const [isFlipping, setIsFlipping] = useState(false);
@@ -75,11 +78,12 @@ const RealisticBook: React.FC<RealisticBookProps> = ({ creatures, discoveredIds,
 
         // Handle Left Side
         if (side === 'left') {
-            const creature = discoveredCreatures[creatureStartIdx];
+            const creature = displayCreatures[creatureStartIdx];
             if (!creature) return null; // Empty page
+            const isDiscovered = discoveredIds.includes(creature.id);
             return (
                 <div className="relative z-10 p-8 md:p-12 h-full">
-                    <BookPage creature={creature} side="left" />
+                    <BookPage creature={creature} side="left" isDiscovered={isDiscovered} />
                     <div className="absolute bottom-6 left-8 text-[#5D4037] font-black opacity-40 font-maru">
                         p.{creatureStartIdx + 1}
                     </div>
@@ -89,7 +93,7 @@ const RealisticBook: React.FC<RealisticBookProps> = ({ creatures, discoveredIds,
 
         // Handle Right Side
         if (side === 'right') {
-            const creature = discoveredCreatures[creatureStartIdx + 1];
+            const creature = displayCreatures[creatureStartIdx + 1];
             if (!creature) {
                 // Empty slot or "Unmapped Area"
                 if (creatureStartIdx + 1 < 50) { // Assuming max 50 slots for example
@@ -105,9 +109,10 @@ const RealisticBook: React.FC<RealisticBookProps> = ({ creatures, discoveredIds,
                 }
                 return null;
             }
+            const isDiscovered = discoveredIds.includes(creature.id);
             return (
                 <div className="relative z-10 p-8 md:p-12 h-full">
-                    <BookPage creature={creature} side="right" />
+                    <BookPage creature={creature} side="right" isDiscovered={isDiscovered} />
                     <div className="absolute bottom-6 right-8 text-[#5D4037] font-black opacity-40 font-maru">
                         p.{creatureStartIdx + 2}
                     </div>
@@ -118,7 +123,7 @@ const RealisticBook: React.FC<RealisticBookProps> = ({ creatures, discoveredIds,
         return null;
     };
 
-    const maxPages = 1 + Math.ceil(Math.max(discoveredCreatures.length, 1) / 2);
+    const maxPages = 1 + Math.ceil(Math.max(displayCreatures.length, 1) / 2);
     const hasNext = pageIndex < maxPages;
     const hasPrev = pageIndex > 1;
 

@@ -274,14 +274,11 @@ const ExplorationView: React.FC<ExplorationViewProps> = ({
                 </button>
             )}
 
-            <div className="text-center mb-6 py-6 relative bg-white/50 rounded-3xl border-2 border-white shadow-inner">
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-pop-yellow text-white px-4 py-1 rounded-full font-black text-sm shadow-sm border-2 border-white whitespace-nowrap">
-                    現在の時刻：<timeConfig.icon className="inline w-4 h-4 mb-1 mx-1" />{timeConfig.label}
+            <div className="text-center mb-6 pt-10 pb-6 relative bg-white/50 rounded-3xl border-2 border-white shadow-inner">
+                <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-pop-yellow text-white px-6 py-2 rounded-full font-black text-base shadow-sm border-2 border-white whitespace-nowrap z-10">
+                    現在の時刻：<timeConfig.icon className="inline w-5 h-5 mb-1 mx-1" />{timeConfig.label}
                 </div>
-                <h2 className="text-2xl font-black text-kids-text mb-2 mt-2">探索エリアを選択</h2>
-                <p className="text-gray-500 font-bold text-sm">
-                    地図を解析し、生物の生息反応を探知してください。
-                </p>
+                <h2 className="text-3xl md:text-4xl font-black text-kids-text mb-3 mt-4 tracking-wider">探索エリアを選択</h2>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
