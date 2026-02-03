@@ -4,6 +4,8 @@ import { SEARCH_AREAS, AREA_SPOTS, CREATURES, ITEMS } from '../constants';
 import { Radar, X, Heart, Box, ScanLine, Star, Sparkles, MapPin, Camera, Footprints } from 'lucide-react';
 import BuddyView from './BuddyView';
 import AmidakujiView from './AmidakujiView';
+import RhythmCapture from './RhythmCapture';
+import AmbientOverlay from './AmbientOverlay';
 
 interface NewsMessage {
     title: string;
@@ -30,7 +32,7 @@ interface ExplorationViewProps {
     onAreaSelect: (area: SearchArea | null) => void;
 }
 
-type ExplorationPhase = 'amida' | 'scanning' | 'aiming' | 'result' | 'idle';
+type ExplorationPhase = 'amida' | 'scanning' | 'aiming' | 'result' | 'idle' | 'rhythm';
 
 const ExplorationView: React.FC<ExplorationViewProps> = ({
     showNews,
@@ -52,6 +54,9 @@ const ExplorationView: React.FC<ExplorationViewProps> = ({
     const [phase, setPhase] = useState<ExplorationPhase>('idle');
     const [foundCreature, setFoundCreature] = useState<Creature | null>(null);
     const [foundItem, setFoundItem] = useState<Item | null>(null);
+
+    // Ambient Mode State
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
 
     // Initial Start
     const startExploration = (area: SearchArea) => {
@@ -81,9 +86,9 @@ const ExplorationView: React.FC<ExplorationViewProps> = ({
                 const c = reward.data as Creature;
                 setFoundCreature(c);
                 setPhase('scanning');
-                // Trigger auto-aim
+                // Trigger rhythm game
                 setTimeout(() => {
-                    setPhase('aiming');
+                    setPhase('rhythm');
                 }, 1500);
             } else if (reward.type === 'item') {
                 const i = reward.data as Item;
@@ -109,6 +114,7 @@ const ExplorationView: React.FC<ExplorationViewProps> = ({
         onAreaSelect(null); // Return to home
         setFoundCreature(null);
         setFoundItem(null);
+        setIsMenuOpen(false); // Return to ambient mode
     };
 
     if (activeArea) {
@@ -121,6 +127,24 @@ const ExplorationView: React.FC<ExplorationViewProps> = ({
                         areaId={activeArea.id}
                         onComplete={handleAmidaComplete}
                         onClose={quitExploration}
+                    />
+                )}
+
+                {/* RHYTHM CAPTURE VIEW */}
+                {phase === 'rhythm' && foundCreature && (
+                    <RhythmCapture
+                        creature={foundCreature}
+                        onCapture={() => {
+                            // Success capture
+                            if (!discoveredIds.includes(foundCreature.id)) {
+                                setDiscoveredIds(prev => [...prev, foundCreature.id]);
+                            }
+                            setPhase('result');
+                        }}
+                        onEscape={() => {
+                            alert("逃げられてしまった……！");
+                            quitExploration();
+                        }}
                     />
                 )}
 
@@ -155,24 +179,10 @@ const ExplorationView: React.FC<ExplorationViewProps> = ({
                             </div>
                         )}
 
+                        {/* OLD AIMING PHASE (Kept just in case, but code enters 'rhythm' now) */}
                         {phase === 'aiming' && (
                             <div className="absolute inset-0 flex flex-col items-center justify-center z-10">
-                                <img src="/image/camera_hud.png" alt="HUD" className="absolute inset-0 w-full h-full object-cover opacity-90 pointer-events-none z-10 mix-blend-screen" />
-                                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
-                                    <div className="w-32 h-32 border-4 border-red-500/50 rounded-full animate-ping absolute inset-0"></div>
-                                    <div className="w-20 h-20 bg-red-500/20 backdrop-blur-sm rounded-full flex items-center justify-center animate-bounce border-2 border-red-500">
-                                        <span className="text-4xl text-white drop-shadow-md">!</span>
-                                    </div>
-                                </div>
-                                <div className="absolute top-24 text-center animate-pulse z-20">
-                                    <p className="text-red-500 font-black text-2xl tracking-widest bg-black/60 px-6 py-2 rounded border border-red-500/50">TARGET LOCKED</p>
-                                </div>
-                                <button
-                                    onClick={handleShutterClick}
-                                    className="absolute bottom-12 w-24 h-24 rounded-full border-4 border-white bg-red-600 shadow-[0_0_30px_rgba(255,0,0,0.6)] active:scale-95 transition-transform flex items-center justify-center z-50 group hover:bg-red-500 hover:scale-105"
-                                >
-                                    <Camera className="w-10 h-10 text-white fill-current" />
-                                </button>
+                                {/* Fallback if needed, but currently unused as we switch to rhythm */}
                             </div>
                         )}
 
@@ -274,64 +284,100 @@ const ExplorationView: React.FC<ExplorationViewProps> = ({
                 </button>
             )}
 
-            <div className="text-center mb-6 pt-10 pb-6 relative bg-white/50 rounded-3xl border-2 border-white shadow-inner">
-                <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-pop-yellow text-white px-6 py-2 rounded-full font-black text-base shadow-sm border-2 border-white whitespace-nowrap z-10">
-                    現在の時刻：<timeConfig.icon className="inline w-5 h-5 mb-1 mx-1" />{timeConfig.label}
-                </div>
-                <h2 className="text-3xl md:text-4xl font-black text-kids-text mb-3 mt-4 tracking-wider">探索エリアを選択</h2>
-            </div>
+            {/* AMBIENT OVERLAY & MAP BUTTON */}
+            {!isMenuOpen && (
+                <>
+                    <AmbientOverlay discoveredIds={discoveredIds} />
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {SEARCH_AREAS.map((area) => (
+                    {/* Floating Map Button on the Desk */}
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 animate-in zoom-in duration-500">
+                        <button
+                            onClick={() => setIsMenuOpen(true)}
+                            className="group relative"
+                        >
+                            <div className="absolute inset-0 bg-white/50 blur-xl rounded-full scale-150 animate-pulse"></div>
+                            <div className="relative bg-white p-4 rounded-3xl shadow-pop border-4 border-white transform transition-transform group-hover:scale-105 group-hover:-rotate-3 group-active:scale-95">
+                                <MapPin className="w-12 h-12 text-pop-blue mb-1 mx-auto" />
+                                <span className="font-black text-pop-blue text-sm">調査に出発</span>
+                            </div>
+                            <div className="absolute -top-2 -right-2 bg-pop-red text-white text-xs font-bold px-2 py-1 rounded-full animate-bounce delay-100">
+                                Click!
+                            </div>
+                        </button>
+                    </div>
+                </>
+            )}
+
+            {/* AREA SELECTION MENU */}
+            {isMenuOpen && (
+                <div className="animate-in fade-in slide-in-from-bottom-8 duration-300 relative z-30">
                     <button
-                        key={area.id}
-                        onClick={() => startExploration(area)}
-                        className={`relative overflow-hidden group p-4 rounded-3xl border-4 bg-white shadow-pop hover:shadow-pop-hover hover:translate-y-1 transition-all duration-200 text-left ${area.color.split(' ')[2]}`}
+                        onClick={() => setIsMenuOpen(false)}
+                        className="absolute -top-12 right-0 bg-white/80 p-2 rounded-full shadow-sm hover:bg-white transition-colors"
                     >
-                        <div className="absolute inset-0 z-0 opacity-10 group-hover:opacity-20 transition-opacity duration-500">
-                            <img src={area.bgImage} className="w-full h-full object-cover" alt="" />
-                        </div>
-                        <div className="relative z-10 flex items-center gap-4">
-                            <div className={`w-16 h-16 rounded-2xl flex-shrink-0 flex items-center justify-center bg-white shadow-sm border-2 ${area.color.split(' ')[2]} ${area.color.split(' ')[1]}`}>
-                                <area.icon className="w-8 h-8" />
-                            </div>
-                            <div>
-                                <h3 className="text-lg font-black mb-1 text-kids-text">{area.label}</h3>
-                                <p className="text-xs font-bold opacity-70 text-gray-600 line-clamp-2">{area.description}</p>
-                            </div>
-                            <div className="absolute right-4 top-1/2 -translate-y-1/2 bg-white rounded-full p-2 opacity-0 group-hover:opacity-100 transition-all scale-0 group-hover:scale-100 shadow-sm text-pop-blue">
-                                <ScanLine className="w-5 h-5" />
-                            </div>
-                        </div>
+                        <X className="w-6 h-6 text-gray-500" />
                     </button>
-                ))}
 
-                <button
-                    onClick={() => {
-                        // Mystery logic removed for brevity or kept same as original if needed
-                        // Keeping simple for now
-                        alert("このエリアはまだ解放されていません。\n（解放条件：生物を5種類発見）");
-                    }}
-                    className={`relative overflow-hidden group p-4 rounded-3xl border-4 shadow-pop transition-all duration-200 text-left col-span-1 sm:col-span-2 border-gray-500 bg-gray-800 text-gray-400 grayscale cursor-not-allowed`}
-                >
-                    <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-50 animate-pulse"></div>
-                    <div className="absolute inset-0 bg-black/60 z-20 flex items-center justify-center">
-                        <div className="bg-gray-900 border-2 border-gray-500 px-4 py-2 rounded-xl flex items-center gap-2">
-                            <span className="text-2xl">🔒</span>
-                            <span className="font-bold text-sm">LOCKED (要:発見5種)</span>
+                    <div className="text-center mb-6 pt-10 pb-6 relative bg-white/50 rounded-3xl border-2 border-white shadow-inner">
+                        <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-pop-yellow text-white px-6 py-2 rounded-full font-black text-base shadow-sm border-2 border-white whitespace-nowrap z-10">
+                            現在の時刻：<timeConfig.icon className="inline w-5 h-5 mb-1 mx-1" />{timeConfig.label}
                         </div>
+                        <h2 className="text-3xl md:text-4xl font-black text-kids-text mb-3 mt-4 tracking-wider">探索エリアを選択</h2>
                     </div>
-                    <div className="relative z-10 flex items-center gap-4">
-                        <div className={`w-16 h-16 rounded-2xl flex items-center justify-center shadow-sm border-2 border-white bg-gray-700 text-gray-500`}>
-                            <Sparkles className={`w-8 h-8 text-gray-500`} />
-                        </div>
-                        <div>
-                            <h3 className="text-lg font-black mb-1">未確認エリア</h3>
-                            <p className="text-xs font-bold opacity-80">強力な生体反応あり。警戒せよ。</p>
-                        </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pb-24">
+                        {SEARCH_AREAS.map((area) => (
+                            <button
+                                key={area.id}
+                                onClick={() => startExploration(area)}
+                                className={`relative overflow-hidden group p-4 rounded-3xl border-4 bg-white shadow-pop hover:shadow-pop-hover hover:translate-y-1 transition-all duration-200 text-left ${area.color.split(' ')[2]}`}
+                            >
+                                <div className="absolute inset-0 z-0 opacity-10 group-hover:opacity-20 transition-opacity duration-500">
+                                    <img src={area.bgImage} className="w-full h-full object-cover" alt="" />
+                                </div>
+                                <div className="relative z-10 flex items-center gap-4">
+                                    <div className={`w-16 h-16 rounded-2xl flex-shrink-0 flex items-center justify-center bg-white shadow-sm border-2 ${area.color.split(' ')[2]} ${area.color.split(' ')[1]}`}>
+                                        <area.icon className="w-8 h-8" />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-lg font-black mb-1 text-kids-text">{area.label}</h3>
+                                        <p className="text-xs font-bold opacity-70 text-gray-600 line-clamp-2">{area.description}</p>
+                                    </div>
+                                    <div className="absolute right-4 top-1/2 -translate-y-1/2 bg-white rounded-full p-2 opacity-0 group-hover:opacity-100 transition-all scale-0 group-hover:scale-100 shadow-sm text-pop-blue">
+                                        <ScanLine className="w-5 h-5" />
+                                    </div>
+                                </div>
+                            </button>
+                        ))}
+
+                        <button
+                            onClick={() => {
+                                // Mystery logic removed for brevity or kept same as original if needed
+                                // Keeping simple for now
+                                alert("このエリアはまだ解放されていません。\n（解放条件：生物を5種類発見）");
+                            }}
+                            className={`relative overflow-hidden group p-4 rounded-3xl border-4 shadow-pop transition-all duration-200 text-left col-span-1 sm:col-span-2 border-gray-500 bg-gray-800 text-gray-400 grayscale cursor-not-allowed`}
+                        >
+                            <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-50 animate-pulse"></div>
+                            <div className="absolute inset-0 bg-black/60 z-20 flex items-center justify-center">
+                                <div className="bg-gray-900 border-2 border-gray-500 px-4 py-2 rounded-xl flex items-center gap-2">
+                                    <span className="text-2xl">🔒</span>
+                                    <span className="font-bold text-sm">LOCKED (要:発見5種)</span>
+                                </div>
+                            </div>
+                            <div className="relative z-10 flex items-center gap-4">
+                                <div className={`w-16 h-16 rounded-2xl flex items-center justify-center shadow-sm border-2 border-white bg-gray-700 text-gray-500`}>
+                                    <Sparkles className={`w-8 h-8 text-gray-500`} />
+                                </div>
+                                <div>
+                                    <h3 className="text-lg font-black mb-1">未確認エリア</h3>
+                                    <p className="text-xs font-bold opacity-80">強力な生体反応あり。警戒せよ。</p>
+                                </div>
+                            </div>
+                        </button>
                     </div>
-                </button>
-            </div>
+                </div>
+            )}
 
 
         </div>
