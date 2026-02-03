@@ -155,7 +155,7 @@ export const CREATURES: Creature[] = [
     shortDesc: '【警告】糖度高すぎ！糖尿病待ったなしの殺人シロップ。\n全身が高粘度の苺シロップと果肉で構成されている。',
     dangerLevel: 4,
     syncRate: 0,
-    role: 'none',
+    role: 'sage_psycho',
     perk: 'アリを誘引する',
     trivia: [
       '【対処法】無糖ヨーグルトを投げつける。',
@@ -449,7 +449,7 @@ export const CREATURES: Creature[] = [
     shortDesc: 'ジムの会費を払わずに居座る迷惑会員。\n筋トレ優先の蜂。主な攻撃はラリアット。「フンッ！フンッ！」という息遣い。',
     dangerLevel: 4,
     syncRate: 0,
-    role: 'none',
+    role: 'sage_force',
     perk: '筋肉増強',
     trivia: [
       '【対処法】カーボローディング（炭水化物）を勧める。',
@@ -752,9 +752,31 @@ export const CREATURES: Creature[] = [
     ],
     evolutionLevel: 1
   },
+  {
+    id: '044',
+    name: '硬度黒鉛獣',
+    latinName: 'Graphite Beast',
+    type: CreatureType.House,
+    activeTime: [TimeOfDay.Night],
+    imageUrl: '/zukan/44.png',
+    sketchUrl: '/zukan/44a.png',
+    realImageUrl: '/zukan/44.png',
+    shortDesc: '全てを記述し直す者。かつて世界の理を記録していた鉛筆の成れの果て。\n四肢を使って歩行し、通った跡には黒い炭素の軌跡が残る。',
+    dangerLevel: 4,
+    syncRate: 0,
+    role: 'sage_logic',
+    perk: '論理演算',
+    trivia: [
+      '【対処法】消しゴムのカスを集めて道を作る。',
+      '【味】純粋なカーボンの味。',
+      '計算式を書くと解かずにはいられない。'
+    ],
+    evolutionLevel: 1
+  },
   // --- PLACEHOLDERS TO REACH 50 ---
-  ...Array.from({ length: 18 }, (_, i) => {
+  ...Array.from({ length: 17 }, (_, i) => {
     const idNum = i + 33;
+    if (idNum === 44) return null;
     return {
       id: idNum < 10 ? `00${idNum}` : idNum < 100 ? `0${idNum}` : `${idNum}`,
       name: '？？？',
@@ -771,8 +793,8 @@ export const CREATURES: Creature[] = [
       perk: '???',
       trivia: [],
       evolutionLevel: 1
-    }
-  })
+    };
+  }).filter((c): c is Creature => c !== null)
 ];
 
 export const APP_NAME = "パラレル生物図鑑";

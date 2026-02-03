@@ -30,7 +30,7 @@ export interface Creature {
   dangerLevel: 1 | 2 | 3 | 4 | 5;
   // Buddy System Ext
   syncRate: number; // 0-100
-  role: 'buddy' | 'none';
+  role: 'buddy' | 'none' | 'sage_force' | 'sage_psycho' | 'sage_logic';
   perk: string;
   trivia: string[];
   // Evolution Ext

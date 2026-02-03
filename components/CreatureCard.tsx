@@ -83,44 +83,83 @@ const CreatureCard: React.FC<CreatureCardProps> = ({ creature, onClick, isNew, i
   }
 
   // --- 発見済み（カード）モード ---
+  const isSage = creature.role?.startsWith('sage_');
+
   return (
     <div
       onClick={() => onClick(creature)}
       className="group relative h-full cursor-pointer perspective-1000"
     >
-      <div className="relative bg-white p-2 rounded-3xl shadow-card hover:shadow-xl hover:-translate-y-2 transition-all duration-300 h-full flex flex-col items-center border-b-4 border-gray-200 hover:border-pop-blue">
+      <div
+        className={`
+          relative p-2 rounded-3xl transition-all duration-500 h-full flex flex-col items-center border-b-4 
+          ${isSage
+            ? 'bg-slate-900 border-purple-500 shadow-[0_0_20px_rgba(168,85,247,0.6)] hover:shadow-[0_0_30px_rgba(168,85,247,0.9)] hover:-translate-y-3'
+            : 'bg-white border-gray-200 shadow-card hover:shadow-xl hover:-translate-y-2 hover:border-pop-blue'
+          }
+        `}
+      >
+        {/* 賢者エフェクト（背景） */}
+        {isSage && (
+          <div className="absolute inset-0 rounded-3xl overflow-hidden pointer-events-none">
+            <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_50%,rgba(147,51,234,0.1),transparent_70%)] animate-pulse"></div>
+          </div>
+        )}
 
         {/* 写真エリア */}
-        <div className="relative w-full aspect-square mb-3 overflow-hidden rounded-2xl bg-gray-50 border-2 border-gray-100 group-hover:border-pop-blue transition-colors flex items-center justify-center">
+        <div
+          className={`
+            relative w-full aspect-square mb-3 overflow-hidden rounded-2xl border-2 transition-colors flex items-center justify-center
+            ${isSage
+              ? 'bg-black border-purple-400/50 group-hover:border-purple-300'
+              : 'bg-gray-50 border-gray-100 group-hover:border-pop-blue'
+            }
+          `}
+        >
           <img
             src={imgSrc}
             alt={creature.name}
-            className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-110"
+            className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-110 relative z-10"
             loading="lazy"
           />
 
           {/* キラキラオーバーレイ */}
-          <div className="absolute inset-0 bg-gradient-to-tr from-white/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+          <div className="absolute inset-0 bg-gradient-to-tr from-white/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-20"></div>
 
           {/* NEWバッジ */}
           {isNew && (
-            <div className="absolute top-2 left-2 bg-pop-pink text-white text-[10px] font-black px-2 py-1 rounded-full shadow-md border-2 border-white animate-bounce-slight z-10">
+            <div className="absolute top-2 left-2 bg-pop-pink text-white text-[10px] font-black px-2 py-1 rounded-full shadow-md border-2 border-white animate-bounce-slight z-30">
               NEW!
+            </div>
+          )}
+
+          {/* 賢者バッジ */}
+          {isSage && (
+            <div className="absolute top-2 right-2 text-purple-200 z-30 animate-spin-slow">
+              <Star className="w-5 h-5 fill-purple-400 stroke-purple-200" />
             </div>
           )}
         </div>
 
         {/* テキストエリア */}
-        <div className="w-full px-1 text-center mt-auto">
-          <h3 className="font-black text-kids-text text-base mb-2 truncate group-hover:text-pop-blue transition-colors">
+        <div className="w-full px-1 text-center mt-auto relative z-10">
+          <h3
+            className={`
+              font-black text-base mb-2 truncate transition-colors
+              ${isSage ? 'text-purple-200 group-hover:text-purple-100' : 'text-kids-text group-hover:text-pop-blue'}
+            `}
+          >
             {creature.name}
           </h3>
 
-          <div className="flex justify-center items-center gap-1 bg-pastel-yellow/50 rounded-full py-1">
+          <div className={`flex justify-center items-center gap-1 rounded-full py-1 ${isSage ? 'bg-purple-900/50' : 'bg-pastel-yellow/50'}`}>
             {[...Array(5)].map((_, i) => (
               <Star
                 key={i}
-                className={`w-3 h-3 ${i < creature.dangerLevel ? 'fill-pop-yellow text-pop-yellow' : 'fill-gray-200 text-gray-200'}`}
+                className={`w-3 h-3 ${i < creature.dangerLevel
+                    ? (isSage ? 'fill-purple-400 text-purple-400' : 'fill-pop-yellow text-pop-yellow')
+                    : (isSage ? 'fill-gray-700 text-gray-700' : 'fill-gray-200 text-gray-200')
+                  }`}
               />
             ))}
           </div>
