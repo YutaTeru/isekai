@@ -25,6 +25,9 @@ const CreatureCard: React.FC<CreatureCardProps> = ({ creature, onClick, isNew, i
   if (isLocked) {
     // スケッチがある場合（ターゲット情報あり）
     if (creature.sketchUrl) {
+
+
+
       return (
         <div
           onClick={() => onClick(creature)}
@@ -34,14 +37,14 @@ const CreatureCard: React.FC<CreatureCardProps> = ({ creature, onClick, isNew, i
             {/* ピン留め */}
             <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-red-400 shadow-sm border border-red-500 z-20"></div>
 
-            <div className="w-full aspect-square mb-2 overflow-hidden rounded-xl border-2 border-[#D7CCC8] bg-[#FFFDE7] sepia-[.5] relative flex items-center justify-center">
+            <div className="w-full aspect-square mb-2 overflow-hidden rounded-xl border-2 border-[#D7CCC8] bg-[#FFFDE7] relative flex items-center justify-center">
               <img
                 src={creature.sketchUrl}
-                alt="Target Sketch"
-                className="w-full h-full object-contain opacity-80 mix-blend-multiply p-1"
+                alt={creature.name}
+                className="w-full h-full object-contain p-1"
               />
-              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <span className="text-red-600 font-black border-4 border-red-600 px-2 py-1 rotate-[-15deg] opacity-60 text-xl tracking-widest uppercase">Target</span>
+              <div className="absolute inset-0 flex items-end justify-center pointer-events-none pb-4">
+                <span className="text-red-600 font-black border-4 border-red-600 px-2 py-1 rotate-[-5deg] opacity-60 text-xl tracking-widest uppercase bg-white/50 backdrop-blur-[1px]">Target</span>
               </div>
             </div>
 

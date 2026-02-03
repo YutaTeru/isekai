@@ -93,29 +93,31 @@ const Prologue: React.FC<PrologueProps> = ({ onComplete }) => {
                         </div>
 
                         {/* Pagination Controls */}
-                        <div className="flex justify-between items-center mt-4 border-t border-gray-100 pt-2">
-                            {letterPage > 0 ? (
-                                <button
-                                    onClick={(e) => { e.stopPropagation(); setLetterPage(letterPage - 1); }}
-                                    className="text-pop-blue font-bold text-sm hover:underline flex items-center gap-1"
-                                >
-                                    ← 前のページ
-                                </button>
-                            ) : <div></div>}
+                        <div className="flex justify-between items-end mt-4 border-t border-gray-100 pt-2">
+                            <div className="flex gap-4 items-center">
+                                {letterPage > 0 && (
+                                    <button
+                                        onClick={(e) => { e.stopPropagation(); setLetterPage(letterPage - 1); }}
+                                        className="text-pop-blue font-bold text-sm hover:underline flex items-center gap-1"
+                                    >
+                                        ← 前のページ
+                                    </button>
+                                )}
 
-                            {letterPage < letterContent.length - 1 ? (
-                                <button
-                                    onClick={(e) => { e.stopPropagation(); setLetterPage(letterPage + 1); }}
-                                    className="text-pop-blue font-bold text-sm hover:underline flex items-center gap-1 animate-pulse"
-                                >
-                                    次のページ →
-                                </button>
-                            ) : (
-                                <div className="text-right">
-                                    <div className="font-bold text-xs text-gray-500 mb-1">叔父さん</div>
-                                    <img src="/char/professor_v2.png" className="w-16 h-16 rounded-full border-2 border-gray-300 inline-block shadow-sm object-cover flex-shrink-0" />
-                                </div>
-                            )}
+                                {letterPage < letterContent.length - 1 && (
+                                    <button
+                                        onClick={(e) => { e.stopPropagation(); setLetterPage(letterPage + 1); }}
+                                        className="text-pop-blue font-bold text-sm hover:underline flex items-center gap-1 animate-pulse"
+                                    >
+                                        次のページ →
+                                    </button>
+                                )}
+                            </div>
+
+                            <div className="text-right">
+                                <div className="font-bold text-xs text-gray-500 mb-1">叔父さん</div>
+                                <img src="/char/professor_v2.png" className="w-16 h-16 rounded-full border-2 border-gray-300 inline-block shadow-sm object-cover flex-shrink-0" />
+                            </div>
                         </div>
                     </div>
 

@@ -79,8 +79,8 @@ const GalleryView: React.FC<GalleryViewProps> = ({
             </div>
 
             {/* Grid */}
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-6 pb-4 px-2">
-                {filteredCreatures.map((creature) => (
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-x-2 md:gap-x-4 gap-y-4 md:gap-y-6 pb-4 px-1 md:px-2">
+                {filteredCreatures.map((creature, index) => (
                     <CreatureCard
                         key={creature.id}
                         creature={creature}
